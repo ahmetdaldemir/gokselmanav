@@ -2,25 +2,22 @@
   <v-app>
     <div class="main-content-area">
       <v-app-bar color="white" flat app class="main-content-bar">
-        <v-container class="d-flex align-center justify-space-between" fluid>
-          <!-- Hamburger (mobilde) -->
-          <v-btn icon class="d-md-none" @click="drawer = !drawer">
-            <v-icon>mdi-menu</v-icon>
-          </v-btn>
-          <div class="d-flex align-center">
-            <v-img src="/logo.png" alt="Logo" max-width="40" class="mr-2" />
-            <span class="font-weight-bold text-h6">Vuemmerce</span>
-          </div>
-          <v-text-field
-            prepend-inner-icon="mdi-magnify"
-            label="Search..."
-            hide-details
-            variant="solo"
-            density="compact"
-            class="mx-4 d-none d-md-flex"
-            style="max-width: 300px;"
-          />
-          <div class="d-flex align-center d-none d-md-flex">
+        <div class="navbar-flex">
+          <!-- Sol: Hamburger + Logo -->
+         
+          <!-- Orta: Arama -->
+          <div class="navbar-center">
+            <div class="navbar-left">
+              <v-btn icon @click="drawer = !drawer">
+                <v-icon>mdi-menu</v-icon>
+              </v-btn>
+              <v-img src="/logo.png" alt="Logo" max-width="40" class="mr-2" />
+              <span class="font-weight-bold text-h6">Vuemmerce</span>
+            </div>
+             
+        
+          <!-- Sağ: Sosyal ve Auth -->
+          <div class="navbar-right">
             <v-btn icon variant="text">
               <v-icon>mdi-facebook</v-icon>
             </v-btn>
@@ -48,7 +45,8 @@
               <v-btn color="primary" class="ml-2" @click="goToLogin">Giriş Yap</v-btn>
             </template>
           </div>
-        </v-container>
+        </div>
+        </div>
       </v-app-bar>
       <!-- Mobil Navigation Drawer -->
       <v-navigation-drawer v-model="drawer" app temporary class="d-md-none">
@@ -136,7 +134,9 @@ const logout = () => {
   min-height: 100vh;
 }
 .main-content-area {
-  max-width: 1400px;
+  width: 80vw;
+  max-width: 1600px;
+  min-width: 320px;
   margin: 0 auto;
 }
 .main-content-bar {
@@ -147,5 +147,51 @@ const logout = () => {
 .v-footer {
   border-top: 1px solid #eee;
   margin-top: 2rem;
+}
+.navbar-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1.5rem;
+}
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.navbar-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+.navbar-search {
+  width: 100%;
+  max-width: 300px;
+}
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+@media (max-width: 900px) {
+  .navbar-flex {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+  .navbar-center {
+    justify-content: flex-start;
+    margin: 0;
+  }
+}
+</style>
+
+<style>
+body {
+  background: #f6f7fb !important;
+}
+#app {
+  background: #f6f7fb !important;
 }
 </style> 

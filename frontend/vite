@@ -1,0 +1,31 @@
+
+
+  VITE v6.3.5  ready in 451 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  Vue DevTools: Open http://localhost:5173/__devtools__/ as a separate window
+  ➜  Vue DevTools: Press Option(⌥)+Shift(⇧)+D in App to toggle the Vue DevTools
+  ➜  press h + enter to show help
+21:55:42 [vite] (client) hmr update /src/layouts/MainLayout.vue
+21:58:51 [vite] (client) hmr update /src/layouts/MainLayout.vue?vue&type=style&index=0&scoped=22686b1
+21:58:51 [vite] (client) hmr update /src/layouts/MainLayout.vue?vue&type=style&index=0&scoped=22686b16&lang.css
+22:00:01 [vite] (client) hmr update /src/layouts/MainLayout.vue?vue&type=style&index=0&scoped=22686b1
+22:00:01 [vite] (client) hmr update /src/layouts/MainLayout.vue?vue&type=style&index=0&scoped=22686b16&lang.css (x2)
+22:01:35 [vite] (client) hmr update /src/layouts/MainLayout.vue?vue&type=style&index=0&scoped=22686b1
+22:01:35 [vite] (client) hmr update /src/layouts/MainLayout.vue?vue&type=style&index=0&scoped=22686b16&lang.css (x3)
+22:05:17 [vite] (client) hmr update /src/assets/main.css
+22:08:15 [vite] (client) hmr update /src/assets/main.css (x2)
+22:08:25 [vite] (client) hmr update /src/assets/main.css (x3)
+22:16:22 [vite] (client) hmr update /src/views/HomeView.vue, /src/views/HomeView.vue?vue&type=style&i
+22:16:22 [vite] (client) hmr update /src/views/HomeView.vue, /src/views/HomeView.vue?vue&type=style&index=0&scoped=b4e148ca&lang.css
+22:18:08 [vite] (client) hmr update /src/assets/main.css
+22:19:13 [vite] (client) hmr update /src/views/HomeView.vue?vue&type=style&index=0&scoped=b4e148ca&la
+22:19:13 [vite] (client) hmr update /src/views/HomeView.vue?vue&type=style&index=0&scoped=b4e148ca&lang.css
+22:21:47 [vite] (client) hmr update /src/views/HomeView.vue?vue&type=style&index=0&scoped=b4e148ca&la
+22:21:47 [vite] (client) hmr update /src/views/HomeView.vue?vue&type=style&index=0&scoped=b4e148ca&lang.css (x2)
+22:22:32 [vite] (client) hmr update /src/views/HomeView.vue
+22:27:29 [vite] (client) hmr update /src/layouts/MainLayout.vue
+22:30:16 [vite] (client) hmr update /src/layouts/MainLayout.vue, /src/layouts/MainLayout.vue?vue&type
+22:30:16 [vite] (client) hmr update /src/layouts/MainLayout.vue, /src/layouts/MainLayout.vue?vue&type=style&index=0&scoped=22686b16&lang.css
+22:32:51 [vite] (client) hmr update /src/layouts/MainLayout.vue

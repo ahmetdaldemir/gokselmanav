@@ -85,36 +85,36 @@ const router = createRouter({
   ]
 })
 
-router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore()
+// router.beforeEach((to, from, next) => {
+//   const authStore = useAuthStore()
   
-  // Initialize auth state
-  authStore.initAuth()
+//   // Initialize auth state
+//   authStore.initAuth()
 
-  // Check if route requires authentication
-  if (to.meta.requiresAuth) {
-    if (!authStore.isAuthenticated) {
-      // Redirect to login if not authenticated
-      next({ name: 'admin-login' })
-      return
-    }
+//   // Check if route requires authentication
+//   if (to.meta.requiresAuth) {
+//     if (!authStore.isAuthenticated) {
+//       // Redirect to login if not authenticated
+//       next({ name: 'admin-login' })
+//       return
+//     }
 
-    // Check if route requires admin role
-    if (to.meta.requiresAdmin && authStore.user?.role !== 'admin') {
-      // Redirect to home if not admin
-      next({ name: 'home' })
-      return
-    }
-  }
+//     // Check if route requires admin role
+//     if (to.meta.requiresAdmin && authStore.user?.role !== 'admin') {
+//       // Redirect to home if not admin
+//       next({ name: 'home' })
+//       return
+//     }
+//   }
 
-  // If user is authenticated and trying to access login page
-  if (authStore.isAuthenticated && to.name === 'admin-login') {
-    // Redirect to dashboard
-    next({ name: 'admin-dashboard' })
-    return
-  }
+//   // If user is authenticated and trying to access login page
+//   if (authStore.isAuthenticated && to.name === 'admin-login') {
+//     // Redirect to dashboard
+//     next({ name: 'admin-dashboard' })
+//     return
+//   }
 
-  next()
-})
+//   next()
+// })
 
 export default router 

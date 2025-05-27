@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { Customer } from './entities/customer.entity';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
-import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class CustomersService {
@@ -13,12 +12,8 @@ export class CustomersService {
     private customersRepository: Repository<Customer>,
   ) {}
 
-  async create(createCustomerDto: CreateCustomerDto) {
-    const hashedPassword = await bcrypt.hash(createCustomerDto.password, 10);
-    const customer = this.customersRepository.create({
-      ...createCustomerDto,
-      password: hashedPassword,
-    });
+  create(createCustomerDto: CreateCustomerDto) {
+    const customer = this.customersRepository.create(createCustomerDto);
     return this.customersRepository.save(customer);
   }
 

@@ -20,9 +20,6 @@ export class Admin {
   @Column({ default: true })
   isActive: boolean;
 
-  @Column({ default: 'admin' })
-  role: string;
-
   @CreateDateColumn()
   createdAt: Date;
 

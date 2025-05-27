@@ -13,7 +13,6 @@
             <th>Soyad</th>
             <th>E-posta</th>
             <th>Telefon</th>
-            <th>Adres</th>
             <th>Durum</th>
             <th>Kayıt Tarihi</th>
             <th>İşlemler</th>
@@ -26,7 +25,6 @@
             <td>{{ customer.lastName }}</td>
             <td>{{ customer.email }}</td>
             <td>{{ customer.phone || '-' }}</td>
-            <td>{{ customer.address || '-' }}</td>
             <td>
               <span :class="['status', customer.isActive ? 'active' : 'inactive']">
                 {{ customer.isActive ? 'Aktif' : 'Pasif' }}

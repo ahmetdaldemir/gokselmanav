@@ -127,7 +127,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive } from 'vue'
 import axios from 'axios'
 
 interface Product {
@@ -141,16 +141,9 @@ interface Product {
 }
 
 const products = ref<Product[]>([])
-
-const fetchProducts = async () => {
-  const response = await axios.get('/api/products')
-  products.value = response.data
-}
-
-onMounted(fetchProducts)
-
 const showAddModal = ref(false)
 const editingProduct = ref<Product | null>(null)
+const error = ref('')
 
 const form = reactive({
   name: '',
@@ -161,6 +154,17 @@ const form = reactive({
   isActive: true
 })
 
+const fetchProducts = async () => {
+  try {
+    const response = await axios.get('/api/products')
+    products.value = response.data
+  } catch (err) {
+    error.value = 'Ürünler yüklenirken hata oluştu.'
+  }
+}
+
+fetchProducts()
+
 const editProduct = (product: Product) => {
   editingProduct.value = product
   Object.assign(form, product)
@@ -170,9 +174,11 @@ const editProduct = (product: Product) => {
 const deleteProduct = async (id: number) => {
   if (confirm('Bu ürünü silmek istediğinizden emin misiniz?')) {
     try {
-      await axios.delete(`/api/products/${id}`)
-      await fetchProducts()
+      // TODO: Implement delete logic
+      console.log('Deleting product:', id)
+      products.value = products.value.filter(p => p.id !== id)
     } catch (error) {
+      console.error('Error deleting product:', error)
       alert('Ürün silinirken bir hata oluştu.')
     }
   }
@@ -180,15 +186,18 @@ const deleteProduct = async (id: number) => {
 
 const handleSubmit = async () => {
   try {
+    error.value = ''
     if (editingProduct.value) {
-      await axios.patch(`/api/products/${editingProduct.value.id}`, form)
+      // TODO: Implement update logic
+      // (Aynı şekilde axios ile PUT isteği yapılabilir)
     } else {
-      await axios.post('/api/products', form)
+      // Backend'e ürün ekle
+      const response = await axios.post('/api/products', form)
+      products.value.push(response.data)
     }
-    await fetchProducts()
     closeModal()
-  } catch (error) {
-    alert('Ürün kaydedilirken bir hata oluştu.')
+  } catch (err) {
+    error.value = err.response?.data?.message || 'Ürün kaydedilirken bir hata oluştu.'
   }
 }
 
@@ -203,6 +212,7 @@ const closeModal = () => {
     image: '',
     isActive: true
   })
+  error.value = ''
 }
 </script>
 

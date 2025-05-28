@@ -127,8 +127,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import axios from 'axios'
+import { ref, reactive } from 'vue'
 
 interface Product {
   id: number
@@ -140,14 +139,18 @@ interface Product {
   isActive: boolean
 }
 
-const products = ref<Product[]>([])
-
-const fetchProducts = async () => {
-  const response = await axios.get('/api/products')
-  products.value = response.data
-}
-
-onMounted(fetchProducts)
+const products = ref<Product[]>([
+  {
+    id: 1,
+    name: 'Örnek Ürün 1',
+    description: 'Ürün açıklaması',
+    price: 199.99,
+    stock: 10,
+    image: '/images/product1.jpg',
+    isActive: true
+  },
+  // Add more sample products
+])
 
 const showAddModal = ref(false)
 const editingProduct = ref<Product | null>(null)
@@ -170,9 +173,11 @@ const editProduct = (product: Product) => {
 const deleteProduct = async (id: number) => {
   if (confirm('Bu ürünü silmek istediğinizden emin misiniz?')) {
     try {
-      await axios.delete(`/api/products/${id}`)
-      await fetchProducts()
+      // TODO: Implement delete logic
+      console.log('Deleting product:', id)
+      products.value = products.value.filter(p => p.id !== id)
     } catch (error) {
+      console.error('Error deleting product:', error)
       alert('Ürün silinirken bir hata oluştu.')
     }
   }
@@ -181,13 +186,24 @@ const deleteProduct = async (id: number) => {
 const handleSubmit = async () => {
   try {
     if (editingProduct.value) {
-      await axios.patch(`/api/products/${editingProduct.value.id}`, form)
+      // TODO: Implement update logic
+      console.log('Updating product:', form)
+      const index = products.value.findIndex(p => p.id === editingProduct.value?.id)
+      if (index !== -1) {
+        products.value[index] = { ...products.value[index], ...form }
+      }
     } else {
-      await axios.post('/api/products', form)
+      // TODO: Implement create logic
+      console.log('Creating product:', form)
+      const newProduct = {
+        id: products.value.length + 1,
+        ...form
+      }
+      products.value.push(newProduct)
     }
-    await fetchProducts()
     closeModal()
   } catch (error) {
+    console.error('Error saving product:', error)
     alert('Ürün kaydedilirken bir hata oluştu.')
   }
 }

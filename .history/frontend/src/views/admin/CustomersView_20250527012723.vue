@@ -13,7 +13,6 @@
             <th>Soyad</th>
             <th>E-posta</th>
             <th>Telefon</th>
-            <th>Adres</th>
             <th>Durum</th>
             <th>Kayıt Tarihi</th>
             <th>İşlemler</th>
@@ -26,7 +25,6 @@
             <td>{{ customer.lastName }}</td>
             <td>{{ customer.email }}</td>
             <td>{{ customer.phone || '-' }}</td>
-            <td>{{ customer.address || '-' }}</td>
             <td>
               <span :class="['status', customer.isActive ? 'active' : 'inactive']">
                 {{ customer.isActive ? 'Aktif' : 'Pasif' }}
@@ -159,8 +157,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import axios from 'axios'
+import { ref, reactive } from 'vue'
 
 interface Customer {
   id: number
@@ -174,14 +171,20 @@ interface Customer {
   updatedAt: Date
 }
 
-const customers = ref<Customer[]>([])
-
-const fetchCustomers = async () => {
-  const response = await axios.get('/api/customers')
-  customers.value = response.data
-}
-
-onMounted(fetchCustomers)
+const customers = ref<Customer[]>([
+  {
+    id: 1,
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john@example.com',
+    phone: '+90 555 123 4567',
+    address: 'İstanbul, Türkiye',
+    isActive: true,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  // Add more sample customers
+])
 
 const showViewModal = ref(false)
 const showEditModal = ref(false)
@@ -218,9 +221,11 @@ const editCustomer = (customer: Customer) => {
 const deleteCustomer = async (id: number) => {
   if (confirm('Bu müşteriyi silmek istediğinizden emin misiniz?')) {
     try {
-      await axios.delete(`/api/customers/${id}`)
-      await fetchCustomers()
+      // TODO: Implement delete logic
+      console.log('Deleting customer:', id)
+      customers.value = customers.value.filter(c => c.id !== id)
     } catch (error) {
+      console.error('Error deleting customer:', error)
       alert('Müşteri silinirken bir hata oluştu.')
     }
   }
@@ -229,11 +234,20 @@ const deleteCustomer = async (id: number) => {
 const handleSubmit = async () => {
   try {
     if (selectedCustomer.value) {
-      await axios.patch(`/api/customers/${selectedCustomer.value.id}`, form)
-      await fetchCustomers()
+      // TODO: Implement update logic
+      console.log('Updating customer:', form)
+      const index = customers.value.findIndex(c => c.id === selectedCustomer.value?.id)
+      if (index !== -1) {
+        customers.value[index] = { 
+          ...customers.value[index], 
+          ...form,
+          updatedAt: new Date()
+        }
+      }
     }
     closeEditModal()
   } catch (error) {
+    console.error('Error saving customer:', error)
     alert('Müşteri kaydedilirken bir hata oluştu.')
   }
 }

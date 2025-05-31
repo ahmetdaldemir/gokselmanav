@@ -86,11 +86,6 @@ const router = createRouter({
       path: '/cart',
       name: 'cart',
       component: () => import('../views/CartView.vue')
-    },
-    {
-      path: '/cashout',
-      name: 'cashout',
-      component: () => import('../views/CashoutView.vue')
     }
   ]
 })

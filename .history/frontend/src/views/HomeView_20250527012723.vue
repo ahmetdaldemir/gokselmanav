@@ -66,8 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import axios from 'axios'
+import { ref, computed } from 'vue'
 import { useCartStore } from '@/stores/cart'
 
 const cart = useCartStore()
@@ -78,27 +77,32 @@ const slides = [
   'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80'
 ]
 
-const products = ref<any[]>([])
 const categories = [
-  'Tümü',
-  'Meyveler',
-  'Sebzeler'
+  'Popüler',
+  'Menüler',
+  '%20 İndirimli Ürünler',
+  'Espressolu İçecekler - Latte',
+  'Espressolu İçecekler - Americano',
+  'Tatlılar',
+  'Diğer'
 ]
 const selectedCategory = ref(categories[0])
 const search = ref('')
 
-onMounted(async () => {
-  try {
-    const response = await axios.get('/api/products')
-    products.value = response.data
-  } catch (error) {
-    console.error('Ürünler alınamadı:', error)
-  }
-})
+const products = ref([
+  { id: 1, name: 'Iced Caffè Latte', price: 145, description: 'Buzlu sütlü kahve (Süt içerir.)', image: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=400&q=80', category: 'Popüler' },
+  { id: 2, name: 'Caffè Latte', price: 145, description: 'Sütlü kahve (Süt içerir.)', image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80', category: 'Popüler' },
+  { id: 3, name: 'Cool Lime Refresha®', price: 190, description: 'Misket limonu aromalı buzlu içecek', image: 'https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=400&q=80', category: 'Popüler' },
+  { id: 4, name: 'Caramel Macchiato', price: 180, description: 'Karamelize şekerli ve vanilya aromalı sütlü kahve', image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=400&q=80', category: 'Popüler' },
+  { id: 5, name: 'Espresso', price: 90, description: 'Yoğun aromalı espresso', image: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80', category: 'Espressolu İçecekler - Americano' },
+  { id: 6, name: 'Latte', price: 120, description: 'Sütlü espresso', image: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80', category: 'Espressolu İçecekler - Latte' },
+  { id: 7, name: 'Cheesecake', price: 95, description: 'Kremalı tatlı', image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80', category: 'Tatlılar' },
+  { id: 8, name: 'Brownie', price: 85, description: 'Çikolatalı kek', image: 'https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=crop&w=400&q=80', category: 'Tatlılar' }
+])
 
 const filteredProducts = computed(() => {
   return products.value.filter(
-    p => (selectedCategory.value === 'Tümü' || p.category === selectedCategory.value) &&
+    p => (selectedCategory.value === 'Popüler' || p.category === selectedCategory.value) &&
       (p.name.toLowerCase().includes(search.value.toLowerCase()) || p.description.toLowerCase().includes(search.value.toLowerCase()))
   )
 })

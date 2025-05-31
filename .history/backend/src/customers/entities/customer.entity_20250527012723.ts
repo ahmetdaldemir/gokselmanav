@@ -18,10 +18,10 @@ export class Customer {
   @Column()
   password: string;
 
-  @Column()
+  @Column({ nullable: true })
   phone: string;
 
-  @Column()
+  @Column({ nullable: true })
   address: string;
 
   @Column({ default: true })

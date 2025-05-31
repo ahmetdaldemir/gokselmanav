@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 
 export interface CartItem {
   id: number
@@ -13,22 +13,9 @@ export const useCartStore = defineStore('cart', () => {
   const items = ref<CartItem[]>([])
   const isLoading = ref(false)
 
-  // LocalStorage'dan sepeti yükle
-  const loadCart = () => {
-    const saved = localStorage.getItem('cart')
-    if (saved) {
-      items.value = JSON.parse(saved)
-    }
-  }
-
-  // items değişince localStorage'a kaydet
-  watch(items, (newVal) => {
-    localStorage.setItem('cart', JSON.stringify(newVal))
-  }, { deep: true })
-
   // Demo: Sepeti localden getir
   const fetchCart = async () => {
-    loadCart()
+    // No-op for demo
     isLoading.value = false
   }
 
@@ -67,7 +54,6 @@ export const useCartStore = defineStore('cart', () => {
     addToCart,
     removeFromCart,
     updateQuantity,
-    clearCart,
-    loadCart
+    clearCart
   }
 }) 

@@ -59,11 +59,9 @@
 import { computed, onMounted } from 'vue'
 import { useCartStore } from '@/stores/cart'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
 
 const cart = useCartStore()
 const router = useRouter()
-const authStore = useAuthStore()
 
 onMounted(() => {
   cart.fetchCart()
@@ -87,11 +85,7 @@ const clearCart = () => {
 }
 
 const goToCheckout = () => {
-  if (authStore.isAuthenticated) {
-    router.push('/cashout')
-  } else {
-    router.push('/signup')
-  }
+  router.push('/checkout')
 }
 </script>
 

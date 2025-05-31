@@ -78,14 +78,19 @@ const slides = [
   'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80'
 ]
 
-const products = ref<any[]>([])
 const categories = [
-  'Tümü',
-  'Meyveler',
-  'Sebzeler'
+  'Popüler',
+  'Menüler',
+  '%20 İndirimli Ürünler',
+  'Espressolu İçecekler - Latte',
+  'Espressolu İçecekler - Americano',
+  'Tatlılar',
+  'Diğer'
 ]
 const selectedCategory = ref(categories[0])
 const search = ref('')
+
+const products = ref<any[]>([])
 
 onMounted(async () => {
   try {
@@ -98,7 +103,7 @@ onMounted(async () => {
 
 const filteredProducts = computed(() => {
   return products.value.filter(
-    p => (selectedCategory.value === 'Tümü' || p.category === selectedCategory.value) &&
+    p => (selectedCategory.value === 'Popüler' || p.category === selectedCategory.value) &&
       (p.name.toLowerCase().includes(search.value.toLowerCase()) || p.description.toLowerCase().includes(search.value.toLowerCase()))
   )
 })

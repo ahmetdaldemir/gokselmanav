@@ -79,18 +79,17 @@ const slides = [
 ]
 
 const products = ref<any[]>([])
-const categories = [
-  'Tümü',
-  'Meyveler',
-  'Sebzeler'
-]
-const selectedCategory = ref(categories[0])
+const categories = ref<string[]>(['Tümü'])
+const selectedCategory = ref('Tümü')
 const search = ref('')
 
 onMounted(async () => {
   try {
     const response = await axios.get('/api/products')
     products.value = response.data
+    // Kategorileri ürünlerden dinamik olarak çıkar
+    const cats = Array.from(new Set(products.value.map((p: any) => p.category).filter(Boolean)))
+    categories.value = ['Tümü', ...cats]
   } catch (error) {
     console.error('Ürünler alınamadı:', error)
   }

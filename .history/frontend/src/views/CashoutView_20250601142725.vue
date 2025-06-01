@@ -40,7 +40,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useCartStore } from '@/stores/cart'
-import { useAuthStore } from '@/stores/auth'
 
 interface CartItem {
   id: number;
@@ -50,7 +49,6 @@ interface CartItem {
 }
 
 const cart = useCartStore()
-const auth = useAuthStore()
 const total = computed(() => cart.items.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0))
 const totalWithTax = computed(() => total.value * 1.18)
 
@@ -78,15 +76,12 @@ const submitPayment = async () => {
       cvv: cvv.value,
       amount: totalWithTax.value,
       orderDetails: {
-        customerId: auth.user?.id,
-        items: cart.items.map(item => ({
-          productId: item.id,
-          quantity: item.quantity
-        }))
+        items: cart.items,
+        total: totalWithTax.value
       }
     };
 
-    const response = await fetch('/api/payment', {
+    const response = await fetch('http://localhost:3200/payment', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

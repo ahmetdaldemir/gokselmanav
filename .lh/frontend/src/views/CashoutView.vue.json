@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 3,
+            "activePatchIndex": 8,
             "patches": [
                 {
                     "date": 1748703712210,
@@ -20,6 +20,26 @@
                 {
                     "date": 1748704492423,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -24,9 +24,9 @@\n       </div>\r\n       <div class=\"row\">\r\n         <div>\r\n           <label>Son Kullanma (AA/YY)</label>\r\n-          <input v-model=\"expiry\" maxlength=\"5\" required placeholder=\"AA/YY\" />\r\n+          <input v-model=\"expiry\" maxlength=\"5\" required placeholder=\"AA/YY\" @input=\"formatExpiry\" />\r\n         </div>\r\n         <div>\r\n           <label>CVV</label>\r\n           <input v-model=\"cvv\" maxlength=\"4\" required placeholder=\"CVV\" />\r\n@@ -49,8 +49,16 @@\n const cardHolder = ref('')\r\n const expiry = ref('')\r\n const cvv = ref('')\r\n \r\n+const formatExpiry = (e: Event) => {\r\n+  let value = (e.target as HTMLInputElement).value.replace(/[^0-9]/g, '')\r\n+  if (value.length > 2) {\r\n+    value = value.slice(0, 2) + '/' + value.slice(2, 4)\r\n+  }\r\n+  expiry.value = value\r\n+}\r\n+\r\n const submitPayment = () => {\r\n   // Şimdilik sadece console.log\r\n   console.log({ cardNumber: cardNumber.value, cardHolder: cardHolder.value, expiry: expiry.value, cvv: cvv.value })\r\n   alert('Ödeme backend entegrasyonu ile tamamlanacak!')\r\n"
+                },
+                {
+                    "date": 1748775882649,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -57,12 +57,45 @@\n   }\r\n   expiry.value = value\r\n }\r\n \r\n-const submitPayment = () => {\r\n-  // Şimdilik sadece console.log\r\n-  console.log({ cardNumber: cardNumber.value, cardHolder: cardHolder.value, expiry: expiry.value, cvv: cvv.value })\r\n-  alert('Ödeme backend entegrasyonu ile tamamlanacak!')\r\n+const submitPayment = async () => {\r\n+  try {\r\n+    const [expiryMonth, expiryYear] = expiry.value.split('/');\r\n+    \r\n+    const paymentData = {\r\n+      cardNumber: cardNumber.value,\r\n+      cardHolder: cardHolder.value,\r\n+      expiry: expiry.value,\r\n+      cvv: cvv.value,\r\n+      amount: totalWithTax.value,\r\n+      orderDetails: {\r\n+        items: cart.items,\r\n+        total: totalWithTax.value\r\n+      }\r\n+    };\r\n+\r\n+    const response = await fetch('http://localhost:3000/payment', {\r\n+      method: 'POST',\r\n+      headers: {\r\n+        'Content-Type': 'application/json',\r\n+      },\r\n+      body: JSON.stringify(paymentData),\r\n+    });\r\n+\r\n+    const result = await response.json();\r\n+    \r\n+    if (result.success) {\r\n+      alert('Ödeme başarılı! Siparişiniz oluşturuldu.');\r\n+      cart.clearCart(); // Assuming you have a clearCart method in your store\r\n+      // You might want to redirect to a success page or order details page\r\n+    } else {\r\n+      alert(`Ödeme başarısız: ${result.message}`);\r\n+    }\r\n+  } catch (error) {\r\n+    console.error('Ödeme hatası:', error);\r\n+    alert('Ödeme işlemi sırasında bir hata oluştu. Lütfen tekrar deneyin.');\r\n+  }\r\n }\r\n </script>\r\n \r\n <style scoped>\r\n"
+                },
+                {
+                    "date": 1748775927012,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -40,10 +40,17 @@\n <script setup lang=\"ts\">\r\n import { ref, computed } from 'vue'\r\n import { useCartStore } from '@/stores/cart'\r\n \r\n+interface CartItem {\r\n+  id: number;\r\n+  name: string;\r\n+  price: number;\r\n+  quantity: number;\r\n+}\r\n+\r\n const cart = useCartStore()\r\n-const total = computed(() => cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0))\r\n+const total = computed(() => cart.items.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0))\r\n const totalWithTax = computed(() => total.value * 1.18)\r\n \r\n const cardNumber = ref('')\r\n const cardHolder = ref('')\r\n"
+                },
+                {
+                    "date": 1748777245778,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -80,9 +80,9 @@\n         total: totalWithTax.value\r\n       }\r\n     };\r\n \r\n-    const response = await fetch('http://localhost:3000/payment', {\r\n+    const response = await fetch('http://localhost:3200/payment', {\r\n       method: 'POST',\r\n       headers: {\r\n         'Content-Type': 'application/json',\r\n       },\r\n"
+                },
+                {
+                    "date": 1748777429419,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -80,9 +80,9 @@\n         total: totalWithTax.value\r\n       }\r\n     };\r\n \r\n-    const response = await fetch('http://localhost:3200/payment', {\r\n+    const response = await fetch('/api/payment', {\r\n       method: 'POST',\r\n       headers: {\r\n         'Content-Type': 'application/json',\r\n       },\r\n"
+                },
+                {
+                    "date": 1748783430925,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -39,8 +39,9 @@\n \r\n <script setup lang=\"ts\">\r\n import { ref, computed } from 'vue'\r\n import { useCartStore } from '@/stores/cart'\r\n+import { useAuthStore } from '@/stores/auth'\r\n \r\n interface CartItem {\r\n   id: number;\r\n   name: string;\r\n@@ -48,8 +49,9 @@\n   quantity: number;\r\n }\r\n \r\n const cart = useCartStore()\r\n+const auth = useAuthStore()\r\n const total = computed(() => cart.items.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0))\r\n const totalWithTax = computed(() => total.value * 1.18)\r\n \r\n const cardNumber = ref('')\r\n@@ -75,10 +77,13 @@\n       expiry: expiry.value,\r\n       cvv: cvv.value,\r\n       amount: totalWithTax.value,\r\n       orderDetails: {\r\n-        items: cart.items,\r\n-        total: totalWithTax.value\r\n+        customerId: auth.user?.id,\r\n+        items: cart.items.map(item => ({\r\n+          productId: item.id,\r\n+          quantity: item.quantity\r\n+        }))\r\n       }\r\n     };\r\n \r\n     const response = await fetch('/api/payment', {\r\n"
                 }
             ],
             "date": 1748703712210,

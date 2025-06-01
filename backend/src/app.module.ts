@@ -8,6 +8,7 @@ import { SettingsModule } from './settings/settings.module';
 import { CartsModule } from './carts/carts.module';
 import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
+import { PaymentModule } from './payment/payment.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -34,6 +35,7 @@ import { AuthModule } from './auth/auth.module';
     CartsModule,
     AdminModule,
     AuthModule,
+    PaymentModule,
   ],
 })
 export class AppModule {}

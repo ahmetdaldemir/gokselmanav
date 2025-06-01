@@ -3,11 +3,15 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 1,
             "patches": [
                 {
                     "date": 1748298983869,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1748708858557,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,16 +1,61 @@\n <template>\r\n   <div class=\"orders-view\">\r\n     <h1>Siparişler</h1>\r\n-    <p>Burada siparişler listelenecek.</p>\r\n+    <table v-if=\"orders.length\">\r\n+      <thead>\r\n+        <tr>\r\n+          <th>#</th>\r\n+          <th>Müşteri</th>\r\n+          <th>Tutar</th>\r\n+          <th>Ürünler</th>\r\n+        </tr>\r\n+      </thead>\r\n+      <tbody>\r\n+        <tr v-for=\"order in orders\" :key=\"order.id\">\r\n+          <td>{{ order.id }}</td>\r\n+          <td>{{ order.customer?.firstName }} {{ order.customer?.lastName }}</td>\r\n+          <td>{{ order.totalAmount?.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' }) }}</td>\r\n+          <td>\r\n+            <ul>\r\n+              <li v-for=\"item in order.orderItems\" :key=\"item.id\">\r\n+                {{ item.product?.name }} x{{ item.quantity }}\r\n+              </li>\r\n+            </ul>\r\n+          </td>\r\n+        </tr>\r\n+      </tbody>\r\n+    </table>\r\n+    <p v-else>Hiç sipariş yok.</p>\r\n   </div>\r\n </template>\r\n \r\n <script setup lang=\"ts\">\r\n-// Siparişler ile ilgili kodlar buraya eklenecek\r\n+import { ref, onMounted } from 'vue'\r\n+import axios from 'axios'\r\n+\r\n+const orders = ref([])\r\n+\r\n+onMounted(async () => {\r\n+  const response = await axios.get('/api/orders')\r\n+  orders.value = response.data\r\n+})\r\n </script>\r\n \r\n <style scoped>\r\n .orders-view {\r\n   padding: 2rem;\r\n }\r\n+table {\r\n+  width: 100%;\r\n+  border-collapse: collapse;\r\n+  margin-top: 1.5rem;\r\n+}\r\n+th, td {\r\n+  border: 1px solid #ddd;\r\n+  padding: 0.5rem 1rem;\r\n+  text-align: left;\r\n+}\r\n+th {\r\n+  background: #f7f7f7;\r\n+}\r\n </style> \n\\ No newline at end of file\n"
                 }
             ],
             "date": 1748298983869,

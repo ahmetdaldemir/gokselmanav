@@ -254,7 +254,7 @@ jobs:
         password: '@198711Ad@'
         port: 22
         timeout: 60s
-        source: "frontend/dist/*"
+        source: "frontend/dist/"
         target: "/var/www/html/gokselmanav/frontend/"
         strip_components: 1
         
@@ -266,7 +266,7 @@ jobs:
         password: '@198711Ad@'
         port: 22
         timeout: 60s
-        source: "backend/dist/*"
+        source: "backend/dist/"
         target: "/var/www/html/gokselmanav/backend/"
         strip_components: 1
         

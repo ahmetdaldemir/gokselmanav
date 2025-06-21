@@ -1,0 +1,112 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Build and Deploy Frontend
+      run: |
+        cd frontend
+        npm ci
+        npm run build
+        
+    - name: Build and Deploy Backend
+      run: |
+        cd backend
+        npm ci
+        npm run build
+        
+    - name: Deploy to Server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: 185.209.228.189
+        username: root
+        password: '@198711Ad@'
+        port: 22
+        script: |
+          # Create directories if they don't exist
+          mkdir -p /var/www/html/gokselmanav/frontend
+          mkdir -p /var/www/html/gokselmanav/backend
+          
+          # Stop any running backend processes
+          pkill -f "node.*dist/main" || true
+          
+          # Wait a moment for processes to stop
+          sleep 2
+          
+    - name: Copy Package Files for Backend
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: 185.209.228.189
+        username: root
+        password: '@198711Ad@'
+        port: 22
+        source: "backend/package*.json"
+        target: "/tmp/"
+        strip_components: 1
+        
+    - name: Upload Frontend Files
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: 185.209.228.189
+        username: root
+        password: '@198711Ad@'
+        port: 22
+        source: "frontend/dist/*"
+        target: "/var/www/html/gokselmanav/frontend/"
+        strip_components: 1
+        
+    - name: Upload Backend Files
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: 185.209.228.189
+        username: root
+        password: '@198711Ad@'
+        port: 22
+        source: "backend/dist/*"
+        target: "/var/www/html/gokselmanav/backend/"
+        strip_components: 1
+        
+    - name: Install Backend Dependencies and Start
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: 185.209.228.189
+        username: root
+        password: '@198711Ad@'
+        port: 22
+        script: |
+          cd /var/www/html/gokselmanav/backend
+          
+          # Copy package.json and package-lock.json if they exist
+          if [ -f "/tmp/package.json" ]; then
+            cp /tmp/package.json package.json
+          fi
+          if [ -f "/tmp/package-lock.json" ]; then
+            cp /tmp/package-lock.json package-lock.json
+          fi
+          
+          # Install production dependencies
+          npm ci --only=production
+          
+          # Start the backend application
+          nohup node main.js > app.log 2>&1 &
+          
+          echo "Deployment completed successfully!"
+          echo "Frontend deployed to: /var/www/html/gokselmanav/frontend/"
+          echo "Backend deployed to: /var/www/html/gokselmanav/backend/"
+          echo "Backend started with PID: $!" 

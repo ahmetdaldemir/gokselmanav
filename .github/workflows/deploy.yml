@@ -30,6 +30,22 @@ jobs:
         npm ci
         npm run build
         
+    - name: Test SSH Connection
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: 185.209.228.189
+        username: root
+        password: '@198711Ad@'
+        port: 22
+        timeout: 30s
+        command_timeout: 10s
+        script: |
+          echo "SSH connection successful!"
+          echo "Current directory: $(pwd)"
+          echo "Server uptime: $(uptime)"
+          echo "Available disk space:"
+          df -h
+        
     - name: Deploy to Server
       uses: appleboy/ssh-action@v1.0.3
       with:
@@ -37,6 +53,8 @@ jobs:
         username: root
         password: '@198711Ad@'
         port: 22
+        timeout: 60s
+        command_timeout: 30s
         script: |
           # Create directories if they don't exist
           mkdir -p /var/www/html/gokselmanav/frontend
@@ -55,6 +73,7 @@ jobs:
         username: root
         password: '@198711Ad@'
         port: 22
+        timeout: 60s
         source: "backend/package*.json"
         target: "/tmp/"
         strip_components: 1
@@ -66,6 +85,7 @@ jobs:
         username: root
         password: '@198711Ad@'
         port: 22
+        timeout: 60s
         source: "frontend/dist/*"
         target: "/var/www/html/gokselmanav/frontend/"
         strip_components: 1
@@ -77,6 +97,7 @@ jobs:
         username: root
         password: '@198711Ad@'
         port: 22
+        timeout: 60s
         source: "backend/dist/*"
         target: "/var/www/html/gokselmanav/backend/"
         strip_components: 1
@@ -88,6 +109,8 @@ jobs:
         username: root
         password: '@198711Ad@'
         port: 22
+        timeout: 60s
+        command_timeout: 30s
         script: |
           cd /var/www/html/gokselmanav/backend
           

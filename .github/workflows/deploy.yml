@@ -65,6 +65,13 @@ jobs:
             systemctl start docker
           fi
           
+          # Start Docker daemon if not running
+          if ! systemctl is-active --quiet docker; then
+            echo "Starting Docker daemon..."
+            systemctl start docker
+            sleep 5
+          fi
+          
           # Install Docker Compose if not installed
           if ! command -v docker-compose &> /dev/null; then
             echo "Installing Docker Compose..."
@@ -72,12 +79,19 @@ jobs:
             chmod +x /usr/local/bin/docker-compose
           fi
           
+          # Add root user to docker group
+          usermod -aG docker root || true
+          
           # Create application directory
           mkdir -p /var/www/html/gokselmanav
           cd /var/www/html/gokselmanav
           
           # Stop existing containers if running
           docker-compose -f docker-compose.prod.yml down || true
+          
+          # Test Docker is working
+          docker --version
+          docker-compose --version
           
     - name: Upload Docker Files
       uses: appleboy/scp-action@v0.1.7
@@ -112,6 +126,10 @@ jobs:
         command_timeout: 30s
         script: |
           cd /var/www/html/gokselmanav
+          
+          # Ensure Docker daemon is running
+          systemctl start docker
+          sleep 3
           
           # Start PostgreSQL containers
           docker-compose -f docker-compose.prod.yml up -d

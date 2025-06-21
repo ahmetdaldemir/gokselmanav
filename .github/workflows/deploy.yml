@@ -20,13 +20,13 @@ jobs:
 
     - name: Build Frontend
       run: |
-        cd frontend/frontend
+        cd frontend
         npm ci
         npm run build
 
     - name: Build Backend
       run: |
-        cd backend/backend
+        cd backend
         npm ci
         npm run build
 
@@ -38,7 +38,7 @@ jobs:
         password: '@198711Ad@'
         port: 22
         timeout: 60s
-        source: "frontend/frontend/dist/*"
+        source: "frontend/dist/*"
         target: "/tmp/frontend-dist/"
 
     - name: Move Frontend Files to Final Directory
@@ -62,7 +62,7 @@ jobs:
         password: '@198711Ad@'
         port: 22
         timeout: 60s
-        source: "backend/backend/dist/*"
+        source: "backend/dist/*"
         target: "/tmp/backend-dist/"
 
     - name: Move Backend Files to Final Directory

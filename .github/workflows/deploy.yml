@@ -43,8 +43,9 @@ jobs:
         strip_components: 1
         debug: true
         script: |
-          mv /frontend/dist/* /var/www/html/gokselmanav/frontend
-          rm -rf /frontend/dist
+          mkdir -p /var/www/html/gokselmanav/frontend/dist
+          rm -rf /var/www/html/gokselmanav/frontend/dist/*
+          mv /tmp/frontend-dist/* /var/www/html/gokselmanav/frontend/dist/
 
     - name: Upload Backend Files to Temp
       uses: appleboy/scp-action@v0.1.7

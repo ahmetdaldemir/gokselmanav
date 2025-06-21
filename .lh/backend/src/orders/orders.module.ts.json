@@ -1,0 +1,18 @@
+{
+    "sourceFile": "backend/src/orders/orders.module.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1748708559436,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1748708559436,
+            "name": "Commit-0",
+            "content": "import { Module, forwardRef } from '@nestjs/common';\r\nimport { TypeOrmModule } from '@nestjs/typeorm';\r\nimport { OrdersService } from './orders.service';\r\nimport { OrdersController } from './orders.controller';\r\nimport { Order, OrderItem } from './entities/order.entity';\r\nimport { ProductsModule } from '../products/products.module';\r\nimport { CustomersModule } from '../customers/customers.module';\r\nimport { PaymentModule } from '../payment/payment.module';\r\n\r\n@Module({\r\n  imports: [\r\n    TypeOrmModule.forFeature([Order, OrderItem]),\r\n    ProductsModule,\r\n    CustomersModule,\r\n    forwardRef(() => PaymentModule),\r\n  ],\r\n  controllers: [OrdersController],\r\n  providers: [OrdersService],\r\n  exports: [OrdersService],\r\n})\r\nexport class OrdersModule {} "
+        }
+    ]
+}

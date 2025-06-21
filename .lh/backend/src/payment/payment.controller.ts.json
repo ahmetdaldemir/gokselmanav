@@ -1,0 +1,26 @@
+{
+    "sourceFile": "backend/src/payment/payment.controller.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 2,
+            "patches": [
+                {
+                    "date": 1748707015932,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1748775875557,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,12 +1,13 @@\n import { Controller, Post, Body } from '@nestjs/common';\r\n import { PaymentService } from './payment.service';\r\n+import { PaymentDto } from './dto/payment.dto';\r\n \r\n @Controller('payment')\r\n export class PaymentController {\r\n   constructor(private readonly paymentService: PaymentService) {}\r\n \r\n   @Post()\r\n-  async pay(@Body() paymentData: any) {\r\n+  async pay(@Body() paymentData: PaymentDto) {\r\n     return this.paymentService.processPayment(paymentData);\r\n   }\r\n }\r\n"
+                },
+                {
+                    "date": 1748783699428,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,7 +7,7 @@\n   constructor(private readonly paymentService: PaymentService) {}\r\n \r\n   @Post()\r\n   async pay(@Body() paymentData: PaymentDto) {\r\n-    return this.paymentService.processPayment(paymentData);\r\n+    return this.paymentService.processFinansbankPayment(paymentData);\r\n   }\r\n }\r\n"
+                }
+            ],
+            "date": 1748707015932,
+            "name": "Commit-0",
+            "content": "import { Controller, Post, Body } from '@nestjs/common';\r\nimport { PaymentService } from './payment.service';\r\n\r\n@Controller('payment')\r\nexport class PaymentController {\r\n  constructor(private readonly paymentService: PaymentService) {}\r\n\r\n  @Post()\r\n  async pay(@Body() paymentData: any) {\r\n    return this.paymentService.processPayment(paymentData);\r\n  }\r\n}\r\n"
+        }
+    ]
+}

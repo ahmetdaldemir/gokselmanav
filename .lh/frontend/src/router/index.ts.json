@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 4,
+            "activePatchIndex": 6,
             "patches": [
                 {
                     "date": 1748299050998,
@@ -24,6 +24,14 @@
                 {
                     "date": 1748301629372,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -84,37 +84,37 @@\n     }\r\n   ]\r\n })\r\n \r\n-// router.beforeEach((to, from, next) => {\r\n-//   const authStore = useAuthStore()\r\n+router.beforeEach((to, from, next) => {\r\n+  const authStore = useAuthStore()\r\n   \r\n-//   // Initialize auth state\r\n-//   authStore.initAuth()\r\n+  // Initialize auth state\r\n+  authStore.initAuth()\r\n \r\n-//   // Check if route requires authentication\r\n-//   if (to.meta.requiresAuth) {\r\n-//     if (!authStore.isAuthenticated) {\r\n-//       // Redirect to login if not authenticated\r\n-//       next({ name: 'admin-login' })\r\n-//       return\r\n-//     }\r\n+  // Check if route requires authentication\r\n+  if (to.meta.requiresAuth) {\r\n+    if (!authStore.isAuthenticated) {\r\n+      // Redirect to login if not authenticated\r\n+      next({ name: 'admin-login' })\r\n+      return\r\n+    }\r\n \r\n-//     // Check if route requires admin role\r\n-//     if (to.meta.requiresAdmin && authStore.user?.role !== 'admin') {\r\n-//       // Redirect to home if not admin\r\n-//       next({ name: 'home' })\r\n-//       return\r\n-//     }\r\n-//   }\r\n+    // Check if route requires admin role\r\n+    if (to.meta.requiresAdmin && authStore.user?.role !== 'admin') {\r\n+      // Redirect to home if not admin\r\n+      next({ name: 'home' })\r\n+      return\r\n+    }\r\n+  }\r\n \r\n-//   // If user is authenticated and trying to access login page\r\n-//   if (authStore.isAuthenticated && to.name === 'admin-login') {\r\n-//     // Redirect to dashboard\r\n-//     next({ name: 'admin-dashboard' })\r\n-//     return\r\n-//   }\r\n+  // If user is authenticated and trying to access login page\r\n+  if (authStore.isAuthenticated && to.name === 'admin-login') {\r\n+    // Redirect to dashboard\r\n+    next({ name: 'admin-dashboard' })\r\n+    return\r\n+  }\r\n \r\n-//   next()\r\n-// })\r\n+  next()\r\n+})\r\n \r\n export default router \n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1748687424790,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -80,8 +80,13 @@\n     {\r\n       path: '/signup',\r\n       name: 'signup',\r\n       component: () => import('../views/RegisterView.vue')\r\n+    },\r\n+    {\r\n+      path: '/cart',\r\n+      name: 'cart',\r\n+      component: () => import('../views/CartView.vue')\r\n     }\r\n   ]\r\n })\r\n \r\n"
+                },
+                {
+                    "date": 1748703715306,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -85,8 +85,13 @@\n     {\r\n       path: '/cart',\r\n       name: 'cart',\r\n       component: () => import('../views/CartView.vue')\r\n+    },\r\n+    {\r\n+      path: '/cashout',\r\n+      name: 'cashout',\r\n+      component: () => import('../views/CashoutView.vue')\r\n     }\r\n   ]\r\n })\r\n \r\n"
                 }
             ],
             "date": 1748299050998,

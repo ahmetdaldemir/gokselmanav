@@ -30,8 +30,8 @@ jobs:
         npm ci
         npm run build
 
-    - name: Upload Frontend Files to Temp
-      uses: appleboy/scp-action@v0.1.7
+    - name: Copy Frontend dist to server via SCP
+      uses: appleboy/scp-action@v0.1.4
       with:
         host: 185.209.228.189
         username: root
@@ -39,20 +39,9 @@ jobs:
         port: 22
         timeout: 60s
         source: "frontend/dist/*"
-        target: "/tmp/frontend-dist/"
-
-    - name: Move Frontend Files to Final Directory
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: 185.209.228.189
-        username: root
-        password: '@198711Ad@'
-        port: 22
-        timeout: 30s
-        command_timeout: 15s
-        script: |
-          rm -rf /var/www/html/gokselmanav/frontend/*
-          mv /tmp/frontend-dist/* /var/www/html/gokselmanav/frontend/
+        target: /var/www/html/gokselmanav/frontend
+        strip_components: 1
+        debug: true
 
     - name: Upload Backend Files to Temp
       uses: appleboy/scp-action@v0.1.7
@@ -63,20 +52,11 @@ jobs:
         port: 22
         timeout: 60s
         source: "backend/dist/*"
-        target: "/tmp/backend-dist/"
+        target: /var/www/html/gokselmanav/backend
+        strip_components: 1
+        debug: true
 
-    - name: Move Backend Files to Final Directory
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: 185.209.228.189
-        username: root
-        password: '@198711Ad@'
-        port: 22
-        timeout: 30s
-        command_timeout: 15s
-        script: |
-          rm -rf /var/www/html/gokselmanav/backend/*
-          mv /tmp/backend-dist/* /var/www/html/gokselmanav/backend/
+        
 
     - name: Install Backend Dependencies and Start with PM2
       uses: appleboy/ssh-action@v1.0.3
@@ -91,9 +71,9 @@ jobs:
           cd /var/www/html/gokselmanav/backend
           if [ -f "/tmp/package.json" ]; then cp /tmp/package.json package.json; fi
           if [ -f "/tmp/package-lock.json" ]; then cp /tmp/package-lock.json package-lock.json; fi
-          npm ci --only=production
-          pm2 start main.js --name "gokselmanav-backend" --log /var/www/html/gokselmanav/backend/app.log
-          pm2 save
-          echo "✅ Deployment completed successfully!"
-          pm2 status
+          curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+          apt-get install -y nodejs
+          npm install --omit=dev
+          pm2 delete gokselmanav-backend || true
+          PORT=3100 pm2 start main.js --name gokselmanav-backend
           docker-compose -f /var/www/html/gokselmanav/docker-compose.prod.yml ps

@@ -60,8 +60,9 @@ jobs:
           mkdir -p /var/www/html/gokselmanav/frontend
           mkdir -p /var/www/html/gokselmanav/backend
           
-          # Stop any running backend processes
-          pkill -f "node.*dist/main" || true
+          # Stop any running backend processes with PM2
+          pm2 stop gokselmanav-backend || true
+          pm2 delete gokselmanav-backend || true
           
           # Wait a moment for processes to stop
           sleep 2
@@ -102,7 +103,7 @@ jobs:
         target: "/var/www/html/gokselmanav/backend/"
         strip_components: 1
         
-    - name: Install Backend Dependencies and Start
+    - name: Install Backend Dependencies and Start with PM2
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: 185.209.228.189
@@ -125,10 +126,14 @@ jobs:
           # Install production dependencies
           npm ci --only=production
           
-          # Start the backend application
-          nohup node main.js > app.log 2>&1 &
+          # Start the backend application with PM2
+          pm2 start main.js --name "gokselmanav-backend" --log /var/www/html/gokselmanav/backend/app.log
+          
+          # Save PM2 configuration to start on reboot
+          pm2 save
           
           echo "Deployment completed successfully!"
           echo "Frontend deployed to: /var/www/html/gokselmanav/frontend/"
           echo "Backend deployed to: /var/www/html/gokselmanav/backend/"
-          echo "Backend started with PID: $!" 
+          echo "Backend started with PM2:"
+          pm2 status 

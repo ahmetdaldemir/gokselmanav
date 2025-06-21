@@ -207,6 +207,44 @@ jobs:
         source: "backend/env.example"
         target: "/var/www/html/gokselmanav/backend/.env"
         
+    - name: Update Environment File
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: 185.209.228.189
+        username: root
+        password: '@198711Ad@'
+        port: 22
+        timeout: 30s
+        command_timeout: 10s
+        script: |
+          cd /var/www/html/gokselmanav/backend
+          
+          # Update database host to use IPv4
+          sed -i 's/DB_HOST=localhost/DB_HOST=127.0.0.1/' .env
+          
+          # Test database connection with new settings
+          echo "Testing database connection with 127.0.0.1..."
+          node -e "
+          const { Client } = require('pg');
+          const client = new Client({
+            host: '127.0.0.1',
+            port: 5432,
+            database: 'gokselmanav_db',
+            user: 'gokselmanav_user',
+            password: 'gokselmanav_password_2024'
+          });
+          client.connect()
+            .then(() => {
+              console.log('✅ Database connection successful!');
+              return client.query('SELECT version()');
+            })
+            .then(result => {
+              console.log('✅ Database query successful:', result.rows[0].version);
+            })
+            .catch(err => console.error('❌ Connection error:', err))
+            .finally(() => client.end());
+          "
+        
     - name: Upload Frontend Files
       uses: appleboy/scp-action@v0.1.7
       with:
@@ -263,8 +301,8 @@ jobs:
           echo "Deployment completed successfully!"
           echo "Frontend deployed to: /var/www/html/gokselmanav/frontend/"
           echo "Backend deployed to: /var/www/html/gokselmanav/backend/"
-          echo "PostgreSQL running on localhost:5432"
-          echo "PgAdmin running on localhost:8080"
+          echo "PostgreSQL running on 127.0.0.1:5432"
+          echo "PgAdmin running on 127.0.0.1:8080"
           echo "Backend started with PM2:"
           pm2 status
           echo "Docker containers status:"

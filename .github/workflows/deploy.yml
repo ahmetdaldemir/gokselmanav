@@ -98,4 +98,3 @@ jobs:
           pm2 save
           echo "✅ Deployment completed successfully!"
           pm2 status
-          docker-compose -f /var/www/html/gokselmanav/docker-compose.prod.yml ps

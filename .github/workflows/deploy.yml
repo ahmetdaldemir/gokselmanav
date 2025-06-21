@@ -78,5 +78,5 @@ jobs:
           apt-get install -y nodejs
           npm install --omit=dev
           pm2 delete gokselmanav-backend || true
-          PORT=3100 pm2 start main.js --name gokselmanav-backend
+          PORT=3100 pm2 start dist/main.js --name gokselmanav-backend
           docker-compose -f /var/www/html/gokselmanav/docker-compose.prod.yml ps

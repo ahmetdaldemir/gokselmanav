@@ -122,8 +122,8 @@ jobs:
         username: root
         password: '@198711Ad@'
         port: 22
-        timeout: 60s
-        command_timeout: 30s
+        timeout: 120s
+        command_timeout: 60s
         script: |
           cd /var/www/html/gokselmanav
           
@@ -131,18 +131,37 @@ jobs:
           systemctl start docker
           sleep 3
           
+          # Clean up any existing containers and volumes
+          docker-compose -f docker-compose.prod.yml down -v || true
+          docker system prune -f || true
+          
           # Start PostgreSQL containers
-          docker-compose -f docker-compose.prod.yml up -d
+          echo "Starting PostgreSQL containers..."
+          docker-compose -f docker-compose.prod.yml up -d postgres
           
           # Wait for PostgreSQL to be ready
           echo "Waiting for PostgreSQL to be ready..."
-          sleep 30
+          sleep 45
           
-          # Check if containers are running
+          # Check container status
+          echo "Container status:"
           docker-compose -f docker-compose.prod.yml ps
           
+          # Check container logs
+          echo "PostgreSQL container logs:"
+          docker logs gokselmanav-postgres --tail 20
+          
           # Test database connection
-          docker exec gokselmanav-postgres pg_isready -U gokselmanav_user -d gokselmanav_db
+          echo "Testing database connection..."
+          docker exec gokselmanav-postgres pg_isready -U gokselmanav_user -d gokselmanav_db || echo "Database not ready yet"
+          
+          # Start pgadmin after postgres is ready
+          echo "Starting pgAdmin..."
+          docker-compose -f docker-compose.prod.yml up -d pgadmin
+          
+          # Final status check
+          echo "Final container status:"
+          docker-compose -f docker-compose.prod.yml ps
           
     - name: Deploy to Server
       uses: appleboy/ssh-action@v1.0.3

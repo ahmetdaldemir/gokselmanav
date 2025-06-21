@@ -219,15 +219,16 @@ jobs:
         script: |
           cd /var/www/html/gokselmanav/backend
           
-          # Update database host to use IPv4
-          sed -i 's/DB_HOST=localhost/DB_HOST=127.0.0.1/' .env
+          # Update database host to use server IP for external access
+          sed -i 's/DB_HOST=127.0.0.1/DB_HOST=185.209.228.189/' .env
+          sed -i 's/DB_HOST=localhost/DB_HOST=185.209.228.189/' .env
           
           # Test database connection with new settings
-          echo "Testing database connection with 127.0.0.1..."
+          echo "Testing database connection with 185.209.228.189..."
           node -e "
           const { Client } = require('pg');
           const client = new Client({
-            host: '127.0.0.1',
+            host: '185.209.228.189',
             port: 5432,
             database: 'gokselmanav_db',
             user: 'gokselmanav_user',
@@ -301,8 +302,8 @@ jobs:
           echo "Deployment completed successfully!"
           echo "Frontend deployed to: /var/www/html/gokselmanav/frontend/"
           echo "Backend deployed to: /var/www/html/gokselmanav/backend/"
-          echo "PostgreSQL running on 127.0.0.1:5432"
-          echo "PgAdmin running on 127.0.0.1:8080"
+          echo "PostgreSQL running on 185.209.228.189:5432"
+          echo "PgAdmin running on 185.209.228.189:8080"
           echo "Backend started with PM2:"
           pm2 status
           echo "Docker containers status:"

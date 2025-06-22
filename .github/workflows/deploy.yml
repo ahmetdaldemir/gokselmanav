@@ -52,7 +52,7 @@ jobs:
         command_timeout: 15s
         script: |
           rm -rf /var/www/html/gokselmanav/frontend/*
-          mv /var/www/html/gokselmanav/frontend/frontend/dist/* /var/www/html/gokselmanav/frontend/
+          mv /var/www/html/gokselmanav/frontend/dist/* /var/www/html/gokselmanav/frontend/
 
     - name: Upload Backend Files to Temp
       uses: appleboy/scp-action@v0.1.7

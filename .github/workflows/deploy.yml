@@ -78,6 +78,17 @@ jobs:
           rm -rf /var/www/html/gokselmanav/backend/*
           mv /tmp/backend-dist/* /var/www/html/gokselmanav/backend/
 
+    - name: Upload docker-compose.prod.yml to Server
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: 185.209.228.189
+        username: root
+        password: '@198711Ad@'
+        port: 22
+        timeout: 60s
+        source: "docker-compose.prod.yml"
+        target: "/var/www/html/gokselmanav/"
+
     - name: Install Backend Dependencies and Start with PM2
       uses: appleboy/ssh-action@v1.0.3
       with:

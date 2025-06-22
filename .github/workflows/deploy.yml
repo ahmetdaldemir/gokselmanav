@@ -63,8 +63,7 @@ jobs:
         port: 22
         timeout: 60s
         source: "backend/dist/*"
-        target: "/tmp/backend-dist/"
-        strip_components: 1
+        target: "/var/www/html/gokselmanav/"
 
     - name: Move Backend Files to Final Directory
       uses: appleboy/ssh-action@v1.0.3
@@ -76,9 +75,8 @@ jobs:
         timeout: 30s
         command_timeout: 15s
         script: |
-          mkdir -p /var/www/html/gokselmanav/backend
-          rm -rf /var/www/html/gokselmanav/backend/*
-          mv /tmp/backend-dist/* /var/www/html/gokselmanav/backend/
+          mv /var/www/html/gokselmanav/backend/dist/* /var/www/html/gokselmanav/backend/    
+          rm -rf /var/www/html/gokselmanav/backend/dıst
 
     - name: Upload docker-compose.prod.yml to Server
       uses: appleboy/scp-action@v0.1.7

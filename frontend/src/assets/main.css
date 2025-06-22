@@ -31,3 +31,15 @@ a,
     padding: 0 2rem;
   }
 }
+
+
+.v-toolbar__content{
+  width: 80vw;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+
+.navbar-center{
+    display: contents !important;
+}

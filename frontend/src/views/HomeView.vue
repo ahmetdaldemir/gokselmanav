@@ -1,9 +1,9 @@
 <template>
   <div class="starbucks-page">
     <!-- Üst: Restoran Bilgi ve Slider Alanı -->
-    <div class="restaurant-header">
+    <div class="restaurant-header d-none d-md-block">
       <div class="restaurant-info">
-        <img class="restaurant-logo" src="https://upload.wikimedia.org/wikipedia/sco/thumb/4/45/Starbucks_Coffee_Logo.svg/1200px-Starbucks_Coffee_Logo.svg.png" alt="Starbucks Coffee" />
+        <img class="restaurant-logo" src="/logogoksel.png" alt="Starbucks Coffee" />
         <div class="restaurant-meta">
           <h1>GOKSEL MANAV</h1>
           <div class="restaurant-details">
@@ -12,7 +12,7 @@
             <span class="min-order">Min. sepet tutarı 100 TL</span>
           </div>
           <div class="restaurant-rating">
-            <span class="star">★</span> 3.95 (1000+)
+            <span class="star">★</span> 4.95 (1000+)
             <span class="reviews">Yorumları Gör</span>
             <span class="about">Hakkında</span>
           </div>

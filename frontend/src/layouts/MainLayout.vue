@@ -3,30 +3,58 @@
     <div class="main-content-area">
       <v-app-bar color="white" flat app class="main-content-bar">
         <div class="navbar-flex">
-          <!-- Sol: Hamburger + Logo -->
-         
-          <!-- Orta: Arama -->
-          <div class="navbar-center">
+          <!-- Desktop Navigation -->
+          <div class="d-none d-md-flex navbar-center w-100">
             <div class="navbar-left">
               <v-btn icon @click="drawer = !drawer">
                 <v-icon>mdi-menu</v-icon>
               </v-btn>
-              <v-img src="/logo.png" alt="Logo" max-width="40" class="mr-2" />
-              <span class="font-weight-bold text-h6">Vuemmerce</span>
+              <v-img src="/logogoksel.png" alt="Logo" max-width="40" class="mr-2" />
+              <span class="font-weight-bold text-h6">Göksel Manav</span>
             </div>
-             
-        
-          <!-- Sağ: Sosyal ve Auth -->
-          <div class="navbar-right">
-            <v-btn icon variant="text">
-              <v-icon>mdi-facebook</v-icon>
+            
+            <!-- Orta: Arama -->
+            <div class="navbar-center">
+              <!-- Arama alanı buraya eklenebilir -->
+            </div>
+            
+            <!-- Sağ: Sosyal ve Auth -->
+            <div class="navbar-right">
+              <v-btn icon variant="text">
+                <v-icon>mdi-facebook</v-icon>
+              </v-btn>
+              <v-btn icon variant="text">
+                <v-icon>mdi-twitter</v-icon>
+              </v-btn>
+              <v-btn icon variant="text">
+                <v-icon>mdi-instagram</v-icon>
+              </v-btn>
+              <v-btn icon variant="text" @click="goToCart">
+                <v-badge :content="cartCount" color="primary" v-if="cartCount > 0" overlap>
+                  <template #badge>
+                    <span>{{ cartCount }}</span>
+                  </template>
+                  <v-icon>mdi-cart</v-icon>
+                </v-badge>
+                <v-icon v-else>mdi-cart</v-icon>
+              </v-btn>
+              <template v-if="isAuthenticated">
+                <span class="ml-2 font-weight-bold">{{ userName }}</span>
+                <v-btn color="error" variant="outlined" class="ml-2" @click="logout">Çıkış Yap</v-btn>
+              </template>
+              <template v-else>
+                <v-btn color="primary" variant="outlined" class="ml-2" @click="goToSignup">Kayıt Ol</v-btn>
+                <v-btn color="primary" class="ml-2" @click="goToLogin">Giriş Yap</v-btn>
+              </template>
+            </div>
+          </div>
+
+          <!-- Mobile Navigation -->
+          <div class="d-flex d-md-none w-100 justify-space-between align-center">
+            <v-btn icon @click="drawer = !drawer">
+              <v-icon>mdi-menu</v-icon>
             </v-btn>
-            <v-btn icon variant="text">
-              <v-icon>mdi-twitter</v-icon>
-            </v-btn>
-            <v-btn icon variant="text">
-              <v-icon>mdi-instagram</v-icon>
-            </v-btn>
+            <v-img src="/logogoksel.png" alt="Logo" max-width="35" />
             <v-btn icon variant="text" @click="goToCart">
               <v-badge :content="cartCount" color="primary" v-if="cartCount > 0" overlap>
                 <template #badge>
@@ -36,18 +64,39 @@
               </v-badge>
               <v-icon v-else>mdi-cart</v-icon>
             </v-btn>
-            <template v-if="isAuthenticated">
-              <span class="ml-2 font-weight-bold">{{ userName }}</span>
-              <v-btn color="error" variant="outlined" class="ml-2" @click="logout">Çıkış Yap</v-btn>
-            </template>
-            <template v-else>
-              <v-btn color="primary" variant="outlined" class="ml-2" @click="goToSignup">Kayıt Ol</v-btn>
-              <v-btn color="primary" class="ml-2" @click="goToLogin">Giriş Yap</v-btn>
-            </template>
           </div>
         </div>
-        </div>
       </v-app-bar>
+
+      <!-- Mobile Bottom Navigation -->
+      <v-bottom-navigation
+        v-model="bottomNav"
+        class="d-flex d-md-none"
+        color="primary"
+        grow
+        app
+      >
+        <v-btn value="home" @click="goToHome">
+          <v-icon>mdi-home</v-icon>
+          <span>Ana Sayfa</span>
+        </v-btn>
+        
+        <v-btn value="products" @click="goToProducts">
+          <v-icon>mdi-package-variant</v-icon>
+          <span>Ürünler</span>
+        </v-btn>
+        
+        <v-btn value="login" @click="goToLogin" v-if="!isAuthenticated">
+          <v-icon>mdi-login</v-icon>
+          <span>Giriş</span>
+        </v-btn>
+        
+        <v-btn value="profile" @click="goToProfile" v-else>
+          <v-icon>mdi-account</v-icon>
+          <span>{{ userName }}</span>
+        </v-btn>
+      </v-bottom-navigation>
+
       <!-- Mobil Navigation Drawer -->
       <v-navigation-drawer v-model="drawer" app temporary class="d-md-none">
         <v-list nav>
@@ -100,6 +149,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
 
 const drawer = ref(false)
+const bottomNav = ref('home')
 const router = useRouter()
 const auth = useAuthStore()
 const cart = useCartStore()
@@ -122,6 +172,15 @@ const goToLogin = () => {
 const goToSignup = () => {
   router.push('/signup')
 }
+const goToHome = () => {
+  router.push('/')
+}
+const goToProducts = () => {
+  router.push('/products')
+}
+const goToProfile = () => {
+  router.push('/account')
+}
 const logout = () => {
   auth.logout()
   router.push('/')
@@ -132,6 +191,7 @@ const logout = () => {
 .main-bg {
   background: #f6f7fb;
   min-height: 100vh;
+  padding-bottom: 80px; /* Bottom navigation için alan */
 }
 .main-content-area {
   width: 80vw;
@@ -174,6 +234,8 @@ const logout = () => {
   align-items: center;
   gap: 0.5rem;
 }
+
+/* Mobile responsive styles */
 @media (max-width: 900px) {
   .navbar-flex {
     flex-direction: column;
@@ -183,6 +245,27 @@ const logout = () => {
   .navbar-center {
     justify-content: flex-start;
     margin: 0;
+  }
+  
+  /* Bottom navigation için footer'ı gizle */
+  .v-footer {
+    display: none;
+  }
+  
+  /* Main content için bottom padding */
+  .main-bg {
+    padding-bottom: 80px;
+  }
+}
+
+/* Desktop'ta bottom navigation'ı gizle */
+@media (min-width: 960px) {
+  .v-bottom-navigation {
+    display: none !important;
+  }
+  
+  .main-bg {
+    padding-bottom: 0;
   }
 }
 </style>

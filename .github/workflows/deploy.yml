@@ -52,9 +52,7 @@ jobs:
         command_timeout: 15s
         script: |
           rm -rf /var/www/html/gokselmanav/frontend/*
-          mv /tmp/frontend-dist/* /var/www/html/gokselmanav/frontend
-          mv /var/www/html/gokselmanav/frontend/dist/* /var/www/html/gokselmanav/frontend
-          rm -rf /var/www/html/gokselmanav/frontend/dist
+          mv /tmp/frontend-dist/* /var/www/html/gokselmanav/frontend/
 
     - name: Upload Backend Files to Temp
       uses: appleboy/scp-action@v0.1.7
@@ -94,7 +92,9 @@ jobs:
           if [ -f "/tmp/package.json" ]; then cp /tmp/package.json package.json; fi
           if [ -f "/tmp/package-lock.json" ]; then cp /tmp/package-lock.json package-lock.json; fi
           npm ci --only=production
-          pm2 start main.js --name "gokselmanav-backend" --log /var/www/html/gokselmanav/backend/app.log
+          pm2 delete gokselmanav-backend || true
+          PORT=3100 pm2 start main.js --name "gokselmanav-backend" --log /var/www/html/gokselmanav/backend/app.log
           pm2 save
           echo "✅ Deployment completed successfully!"
           pm2 status
+          docker-compose -f /var/www/html/gokselmanav/docker-compose.prod.yml ps

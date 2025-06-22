@@ -1,46 +1,52 @@
 <template>
-  <div class="admin-products">
+  <div class="admin-categories">
     <div class="page-header">
-      <h1>Ürün Yönetimi</h1>
+      <h1>Kategori Yönetimi</h1>
       <button class="btn-add" @click="showAddModal = true">
         <i class="fas fa-plus"></i>
-        Yeni Ürün
+        Yeni Kategori
       </button>
     </div>
 
-    <div class="products-table">
+    <div class="categories-table">
       <table>
         <thead>
           <tr>
             <th>ID</th>
             <th>Resim</th>
-            <th>Ürün Adı</th>
-            <th>Fiyat</th>
-            <th>Stok</th>
+            <th>Kategori Adı</th>
+            <th>Açıklama</th>
+            <th>Slug</th>
             <th>Durum</th>
             <th>İşlemler</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="product in products" :key="product.id">
-            <td>{{ product.id }}</td>
+          <tr v-for="category in categories" :key="category.id">
+            <td>{{ category.id }}</td>
             <td>
-              <img :src="product.image" :alt="product.name" class="product-image">
+              <img 
+                v-if="category.image" 
+                :src="category.image" 
+                :alt="category.name" 
+                class="category-image"
+              >
+              <div v-else class="no-image">Resim Yok</div>
             </td>
-            <td>{{ product.name }}</td>
-            <td>{{ product.price }} TL</td>
-            <td>{{ product.stock }}</td>
+            <td>{{ category.name }}</td>
+            <td>{{ truncateDescription(category.description) }}</td>
+            <td>{{ category.slug }}</td>
             <td>
-              <span :class="['status', product.isActive ? 'active' : 'inactive']">
-                {{ product.isActive ? 'Aktif' : 'Pasif' }}
+              <span :class="['status', category.isActive ? 'active' : 'inactive']">
+                {{ category.isActive ? 'Aktif' : 'Pasif' }}
               </span>
             </td>
             <td>
               <div class="actions">
-                <button class="btn-edit" @click="editProduct(product)">
+                <button class="btn-edit" @click="editCategory(category)">
                   <i class="fas fa-edit"></i>
                 </button>
-                <button class="btn-delete" @click="deleteProduct(product.id)">
+                <button class="btn-delete" @click="deleteCategory(category.id)">
                   <i class="fas fa-trash"></i>
                 </button>
               </div>
@@ -50,13 +56,13 @@
       </table>
     </div>
 
-    <!-- Add/Edit Product Modal -->
+    <!-- Add/Edit Category Modal -->
     <div v-if="showAddModal" class="modal">
       <div class="modal-content">
-        <h2>{{ editingProduct ? 'Ürün Düzenle' : 'Yeni Ürün' }}</h2>
-        <form @submit.prevent="handleSubmit" class="product-form">
+        <h2>{{ editingCategory ? 'Kategori Düzenle' : 'Yeni Kategori' }}</h2>
+        <form @submit.prevent="handleSubmit" class="category-form">
           <div class="form-group">
-            <label for="name">Ürün Adı</label>
+            <label for="name">Kategori Adı</label>
             <input 
               type="text" 
               id="name" 
@@ -69,34 +75,36 @@
             <textarea 
               id="description" 
               v-model="form.description" 
-              required
               rows="3"
             ></textarea>
           </div>
           <div class="form-group">
-            <label for="price">Fiyat</label>
+            <label for="slug">Slug</label>
             <input 
-              type="number" 
-              id="price" 
-              v-model="form.price" 
+              type="text" 
+              id="slug" 
+              v-model="form.slug" 
               required
-              min="0"
-              step="0.01"
+              placeholder="kategori-adi"
             >
           </div>
           <div class="form-group">
-            <label for="stock">Stok</label>
-            <input 
-              type="number" 
-              id="stock" 
-              v-model="form.stock" 
-              required
-              min="0"
-            >
-          </div>
-          <div class="form-group">
-            <label for="image">Ürün Resmi</label>
+            <label for="image">Kategori Resmi</label>
             <ImageUpload v-model="form.image" />
+          </div>
+          <div class="form-group">
+            <label for="parentId">Üst Kategori</label>
+            <select id="parentId" v-model="form.parentId">
+              <option value="">Ana Kategori</option>
+              <template v-for="category in categories" :key="category.id">
+                <option 
+                  v-if="!editingCategory || category.id !== editingCategory.id"
+                  :value="category.id"
+                >
+                  {{ category.name }}
+                </option>
+              </template>
+            </select>
           </div>
           <div class="form-group">
             <label class="checkbox-label">
@@ -112,7 +120,7 @@
               İptal
             </button>
             <button type="submit" class="btn-submit">
-              {{ editingProduct ? 'Güncelle' : 'Ekle' }}
+              {{ editingCategory ? 'Güncelle' : 'Ekle' }}
             </button>
           </div>
         </form>
@@ -126,84 +134,114 @@ import { ref, reactive, onMounted } from 'vue'
 import axios from 'axios'
 import ImageUpload from '@/components/ImageUpload.vue'
 
-interface Product {
+interface Category {
   id: number
   name: string
   description: string
-  price: number
-  stock: number
+  slug: string
   image: string
+  parentId: number | null
   isActive: boolean
+  createdAt: Date
+  updatedAt: Date
 }
 
-const products = ref<Product[]>([])
+const categories = ref<Category[]>([])
 
-const fetchProducts = async () => {
-  const response = await axios.get('/backend/products')
-  products.value = response.data
+const fetchCategories = async () => {
+  try {
+    const response = await axios.get('/backend/categories')
+    categories.value = response.data
+  } catch (error) {
+    console.error('Kategoriler alınamadı:', error)
+    alert('Kategoriler yüklenirken bir hata oluştu.')
+  }
 }
 
-onMounted(fetchProducts)
+onMounted(fetchCategories)
 
 const showAddModal = ref(false)
-const editingProduct = ref<Product | null>(null)
+const editingCategory = ref<Category | null>(null)
 
 const form = reactive({
   name: '',
   description: '',
-  price: 0,
-  stock: 0,
+  slug: '',
   image: '',
+  parentId: null as number | null,
   isActive: true
 })
 
-const editProduct = (product: Product) => {
-  editingProduct.value = product
-  Object.assign(form, product)
+const editCategory = (category: Category) => {
+  editingCategory.value = category
+  Object.assign(form, {
+    name: category.name,
+    description: category.description || '',
+    slug: category.slug,
+    image: category.image || '',
+    parentId: category.parentId,
+    isActive: category.isActive
+  })
   showAddModal.value = true
 }
 
-const deleteProduct = async (id: number) => {
-  if (confirm('Bu ürünü silmek istediğinizden emin misiniz?')) {
+const deleteCategory = async (id: number) => {
+  if (confirm('Bu kategoriyi silmek istediğinizden emin misiniz?')) {
     try {
-      await axios.delete(`/backend/products/${id}`)
-      await fetchProducts()
+      await axios.delete(`/backend/categories/${id}`)
+      await fetchCategories()
+      alert('Kategori başarıyla silindi.')
     } catch (error) {
-      alert('Ürün silinirken bir hata oluştu.')
+      console.error('Kategori silinirken hata:', error)
+      alert('Kategori silinirken bir hata oluştu.')
     }
   }
 }
 
 const handleSubmit = async () => {
   try {
-    if (editingProduct.value) {
-      await axios.patch(`/backend/products/${editingProduct.value.id}`, form)
-    } else {
-      await axios.post('/backend/products', form)
+    const submitData = {
+      ...form,
+      parentId: form.parentId || null
     }
-    await fetchProducts()
+
+    if (editingCategory.value) {
+      await axios.patch(`/backend/categories/${editingCategory.value.id}`, submitData)
+      alert('Kategori başarıyla güncellendi.')
+    } else {
+      await axios.post('/backend/categories', submitData)
+      alert('Kategori başarıyla eklendi.')
+    }
+    
+    await fetchCategories()
     closeModal()
   } catch (error) {
-    alert('Ürün kaydedilirken bir hata oluştu.')
+    console.error('Kategori kaydedilirken hata:', error)
+    alert('Kategori kaydedilirken bir hata oluştu.')
   }
 }
 
 const closeModal = () => {
   showAddModal.value = false
-  editingProduct.value = null
+  editingCategory.value = null
   Object.assign(form, {
     name: '',
     description: '',
-    price: 0,
-    stock: 0,
+    slug: '',
     image: '',
+    parentId: null,
     isActive: true
   })
+}
+
+const truncateDescription = (description: string) => {
+  if (!description) return '-'
+  return description.length > 50 ? description.substring(0, 50) + '...' : description
 }
 </script>
 
 <style scoped>
-.admin-products {
+.admin-categories {
   padding: 1rem;
 }
 
@@ -231,7 +269,7 @@ const closeModal = () => {
   background-color: #3aa876;
 }
 
-.products-table {
+.categories-table {
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -255,11 +293,23 @@ th {
   color: #333;
 }
 
-.product-image {
+.category-image {
   width: 50px;
   height: 50px;
   object-fit: cover;
   border-radius: 4px;
+}
+
+.no-image {
+  width: 50px;
+  height: 50px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: #666;
 }
 
 .status {
@@ -328,9 +378,11 @@ th {
   border-radius: 8px;
   width: 100%;
   max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
-.product-form {
+.category-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -347,14 +399,14 @@ label {
   color: #333;
 }
 
-input, textarea {
+input, textarea, select {
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
 }
 
-input:focus, textarea:focus {
+input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: #42b983;
 }

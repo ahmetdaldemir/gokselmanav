@@ -177,7 +177,7 @@ interface Customer {
 const customers = ref<Customer[]>([])
 
 const fetchCustomers = async () => {
-  const response = await axios.get('/api/customers')
+  const response = await axios.get('/backend/customers')
   customers.value = response.data
 }
 

@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
+import { Category } from '../../category/entities/category.entity';
 
 @Entity('products')
 export class Product {
@@ -16,6 +17,12 @@ export class Product {
 
   @Column()
   image: string;
+
+  @Column({ nullable: true })
+  categoryId: number;
+
+  @ManyToOne(() => Category, category => category.products)
+  category: Category;
 
   @Column({ default: true })
   isActive: boolean;

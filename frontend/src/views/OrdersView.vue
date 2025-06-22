@@ -33,11 +33,41 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
-const orders = ref([])
+// Type definitions
+interface Product {
+  id: number
+  name: string
+  price: number
+}
+
+interface OrderItem {
+  id: number
+  product: Product
+  quantity: number
+}
+
+interface Customer {
+  id: number
+  firstName: string
+  lastName: string
+}
+
+interface Order {
+  id: number
+  customer: Customer
+  totalAmount: number
+  orderItems: OrderItem[]
+}
+
+const orders = ref<Order[]>([])
 
 onMounted(async () => {
-  const response = await axios.get('/api/orders')
-  orders.value = response.data
+  try {
+    const response = await axios.get('/backend/orders')
+    orders.value = response.data
+  } catch (error) {
+    console.error('Siparişler alınamadı:', error)
+  }
 })
 </script>
 

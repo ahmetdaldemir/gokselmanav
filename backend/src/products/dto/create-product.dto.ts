@@ -11,6 +11,9 @@ export class CreateProductDto {
   @Min(0)
   price: number;
 
+  @IsNumber()
+  categoryId: number;
+
   @IsUrl()
   image: string;
 

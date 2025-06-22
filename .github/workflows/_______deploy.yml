@@ -1,0 +1,111 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Build Frontend
+      run: |
+        cd frontend
+        npm ci
+        npm run build
+
+    - name: Build Backend
+      run: |
+        cd backend
+        npm ci
+        npm run build
+
+    - name: Upload Frontend Files to Temp
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: 185.209.228.189
+        username: root
+        password: '----198711Ad----'
+        port: 22
+        timeout: 60s
+        source: "frontend/dist/"
+        target: "/var/www/html/gokselmanav/"
+
+    - name: Move Frontend Files to Final Directory
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: 185.209.228.189
+        username: root
+        password: '----198711Ad----'
+        port: 22
+        timeout: 30s
+        command_timeout: 15s
+        script: |
+          mv /var/www/html/gokselmanav/frontend/dist/* /var/www/html/gokselmanav/frontend/
+          rm -rf /var/www/html/gokselmanav/frontend/dist
+
+    - name: Upload Backend Files to Temp
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: 185.209.228.189
+        username: root
+        password: '@198711Ad@'
+        port: 22
+        timeout: 60s
+        source: "backend/dist/*"
+        target: "/var/www/html/gokselmanav/"
+
+    - name: Move Backend Files to Final Directory
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: 185.209.228.189
+        username: root
+        password: '@198711Ad@'
+        port: 22
+        timeout: 30s
+        command_timeout: 15s
+        script: |
+          mv /var/www/html/gokselmanav/backend/dist/* /var/www/html/gokselmanav/backend/    
+          rm -rf /var/www/html/gokselmanav/backend/dıst
+
+    - name: Upload docker-compose.prod.yml to Server
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: 185.209.228.189
+        username: root
+        password: '----198711Ad----'
+        port: 22
+        timeout: 60s
+        source: "docker-compose.prod.yml"
+        target: "/var/www/html/gokselmanav/"
+
+    - name: Install Backend Dependencies and Start with PM2
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: 185.209.228.189
+        username: root
+        password: '----198711Ad----'
+        port: 22
+        timeout: 60s
+        command_timeout: 30s
+        script: |
+          cd /var/www/html/gokselmanav/backend
+          if [ -f "/tmp/package.json" ]; then cp /tmp/package.json package.json; fi
+          if [ -f "/tmp/package-lock.json" ]; then cp /tmp/package-lock.json package-lock.json; fi
+          npm ci --only=production
+          pm2 delete gokselmanav-backend || true
+          PORT=3100 pm2 start main.js --name "gokselmanav-backend" --log /var/www/html/gokselmanav/backend/app.log
+          pm2 save
+          echo "✅ Deployment completed successfully!"
+          pm2 status
+          docker-compose -f /var/www/html/gokselmanav/docker-compose.prod.yml ps

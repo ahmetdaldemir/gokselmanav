@@ -65,9 +65,9 @@ const handleRegister = async () => {
   isLoading.value = true
   error.value = ''
   try {
-    await axios.post('/api/customers', form)
+    await axios.post('/backend/customers', form)
     router.push('/login')
-  } catch (err) {
+  } catch (err: any) {
     error.value = err.response?.data?.message || 'Kayıt sırasında bir hata oluştu.'
   } finally {
     isLoading.value = false

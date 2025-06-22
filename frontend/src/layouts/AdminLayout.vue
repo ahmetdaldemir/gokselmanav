@@ -16,6 +16,10 @@
           <i class="fas fa-box"></i>
           <span class="nav-text">Ürünler</span>
         </router-link>
+        <router-link to="/admin/categories" class="nav-item" active-class="active">
+          <i class="fas fa-tags"></i>
+          <span class="nav-text">Kategoriler</span>
+        </router-link>
         <router-link to="/admin/customers" class="nav-item" active-class="active">
           <i class="fas fa-users"></i>
           <span class="nav-text">Müşteriler</span>

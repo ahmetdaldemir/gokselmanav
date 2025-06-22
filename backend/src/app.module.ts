@@ -9,6 +9,9 @@ import { CartsModule } from './carts/carts.module';
 import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { PaymentModule } from './payment/payment.module';
+import { CategoryModule } from './category/category.module';
+import { UploadModule } from './upload/upload.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -18,11 +21,11 @@ import { PaymentModule } from './payment/payment.module';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        host: configService.get('DB_HOST', '147.93.131.105'),
+        host: configService.get('DB_HOST', '185.209.228.189'),
         port: configService.get('DB_PORT', 5432),
-        username: configService.get('DB_USERNAME', 'laravel'),
-        password: configService.get('DB_PASSWORD', 'secret'),
-        database: configService.get('DB_DATABASE', 'gokselmanav'),
+        username: configService.get('DB_USERNAME', 'gokselmanav_user'),
+        password: configService.get('DB_PASSWORD', 'gokselmanav_password_2024'),
+        database: configService.get('DB_DATABASE', 'gokselmanav_db'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: configService.get('NODE_ENV') !== 'production',
       }),
@@ -36,6 +39,9 @@ import { PaymentModule } from './payment/payment.module';
     AdminModule,
     AuthModule,
     PaymentModule,
+    CategoryModule,
+    UploadModule,
   ],
 })
 export class AppModule {}
+

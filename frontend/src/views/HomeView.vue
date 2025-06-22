@@ -32,12 +32,12 @@
       <input type="text" v-model="search" class="menu-search" placeholder="Menüde Ara" />
       <div class="menu-tabs">
         <div
-          v-for="(cat, i) in categories"
-          :key="cat"
-          :class="['menu-tab', { active: selectedCategory === cat }]"
-          @click="selectedCategory = cat"
+          v-for="category in categories"
+          :key="category.id"
+          :class="['menu-tab', { active: selectedCategoryId === category.id }]"
+          @click="selectCategory(category.id)"
         >
-          {{ cat }}
+          {{ category.name }}
         </div>
       </div>
     </div>
@@ -45,14 +45,14 @@
     <!-- Ürün Listesi -->
     <div class="products-list">
       <div
-        v-for="product in filteredProducts"
+        v-for="product in paginatedProducts"
         :key="product.id"
         class="product-row"
       >
         <div class="product-info">
           <div class="product-title">{{ product.name }}</div>
           <div class="product-price">{{ product.price.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' }) }}</div>
-          <div class="product-desc">{{ product.description }}</div>
+          <div class="product-desc">{{ cleanDescription(product.description) }}</div>
         </div>
         <div class="product-right">
           <img :src="product.image" :alt="product.name" class="product-img" />
@@ -62,45 +62,166 @@
         </div>
       </div>
     </div>
+
+    <!-- Sayfalama -->
+    <div v-if="totalPages > 1" class="pagination">
+      <button 
+        class="page-btn" 
+        :disabled="currentPage === 1"
+        @click="currentPage = currentPage - 1"
+      >
+        ← Önceki
+      </button>
+      
+      <div class="page-numbers">
+        <button 
+          v-for="page in visiblePages" 
+          :key="page"
+          :class="['page-number', { active: page === currentPage }]"
+          @click="currentPage = page"
+        >
+          {{ page }}
+        </button>
+      </div>
+      
+      <button 
+        class="page-btn" 
+        :disabled="currentPage === totalPages"
+        @click="currentPage = currentPage + 1"
+      >
+        Sonraki →
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import axios from 'axios'
 import { useCartStore } from '@/stores/cart'
 
 const cart = useCartStore()
 
 const products = ref<any[]>([])
-const categories = [
-  'Tümü',
-  'Meyveler',
-  'Sebzeler'
-]
-const selectedCategory = ref(categories[0])
+const categories = ref<any[]>([])
+const selectedCategoryId = ref<number | null>(null)
 const search = ref('')
+const currentPage = ref(1)
+const itemsPerPage = 12
+
+// Kategori veya arama değiştiğinde sayfa numarasını sıfırla
+watch([selectedCategoryId, search], () => {
+  currentPage.value = 1
+})
 
 onMounted(async () => {
   try {
-    const response = await axios.get('/api/products')
-    products.value = response.data
+    // Ürünleri ve kategorileri paralel olarak yükle
+    const [productsResponse, categoriesResponse] = await Promise.all([
+      axios.get('/backend/products'),
+      axios.get('/backend/categories/main')
+    ])
+    
+    products.value = productsResponse.data
+    categories.value = categoriesResponse.data
+    
+    // İlk kategoriyi seç
+    if (categories.value.length > 0) {
+      selectedCategoryId.value = categories.value[0].id
+    }
   } catch (error) {
-    console.error('Ürünler alınamadı:', error)
+    console.error('Veriler alınamadı:', error)
   }
 })
 
-const slideImages = computed(() => products.value.map(p => p.image).filter(Boolean))
+const selectCategory = (categoryId: number) => {
+  selectedCategoryId.value = categoryId
+}
+
+const slideImages = computed(() => {
+  if (!products.value || !Array.isArray(products.value)) {
+    return []
+  }
+  return products.value.map(p => p.image).filter(Boolean)
+})
 
 const filteredProducts = computed(() => {
-  return products.value.filter(
-    p => (selectedCategory.value === 'Tümü' || p.category === selectedCategory.value) &&
-      (p.name.toLowerCase().includes(search.value.toLowerCase()) || p.description.toLowerCase().includes(search.value.toLowerCase()))
-  )
+  if (!products.value || !Array.isArray(products.value)) {
+    return []
+  }
+  
+  let filtered = products.value
+  
+  // Kategori filtresi
+  if (selectedCategoryId.value) {
+    filtered = filtered.filter(p => p.categoryId === selectedCategoryId.value)
+  }
+  
+  // Arama filtresi
+  if (search.value) {
+    const searchLower = search.value.toLowerCase()
+    filtered = filtered.filter(p => 
+      p.name.toLowerCase().includes(searchLower) || 
+      p.description.toLowerCase().includes(searchLower)
+    )
+  }
+  
+  return filtered
+})
+
+const totalPages = computed(() => {
+  return Math.ceil(filteredProducts.value.length / itemsPerPage)
+})
+
+const visiblePages = computed(() => {
+  const pages = []
+  const maxVisible = 5
+  const start = Math.max(1, currentPage.value - Math.floor(maxVisible / 2))
+  const end = Math.min(totalPages.value, start + maxVisible - 1)
+  
+  for (let i = start; i <= end; i++) {
+    pages.push(i)
+  }
+  return pages
+})
+
+const paginatedProducts = computed(() => {
+  if (!filteredProducts.value || !Array.isArray(filteredProducts.value)) {
+    return []
+  }
+  const start = (currentPage.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  return filteredProducts.value.slice(start, end)
 })
 
 const addToCart = (product: any) => {
   cart.addToCart(product)
+}
+
+const cleanDescription = (description: string) => {
+  if (!description) return '';
+  
+  // HTML tag'lerini kaldır
+  let cleanText = description.replace(/<[^>]*>/g, '');
+  
+  // HTML karakterlerini decode et
+  cleanText = cleanText
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+  
+  // Fazla boşlukları temizle
+  cleanText = cleanText.replace(/\s+/g, ' ').trim();
+  
+  // İlk 120 karakteri al ve "..." ekle
+  if (cleanText.length > 120) {
+    cleanText = cleanText.substring(0, 120) + '...';
+  }
+  
+  return cleanText;
 }
 </script>
 
@@ -329,5 +450,45 @@ const addToCart = (product: any) => {
   .product-right {
     align-self: flex-end;
   }
+}
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.page-btn {
+  padding: 0.7rem 1.2rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  color: #444;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.page-btn:hover {
+  background: #e52929;
+  color: #fff;
+}
+.page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.page-number {
+  padding: 0.7rem 1.2rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  color: #444;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.page-number.active {
+  background: #e52929;
+  color: #fff;
 }
 </style> 

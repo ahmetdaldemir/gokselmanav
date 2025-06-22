@@ -52,7 +52,7 @@ export const useAuthStore = defineStore('auth', () => {
   const login = async (email: string, password: string, isAdmin: boolean = false) => {
     try {
       const response = await axios.post<LoginResponse>(
-        `/api/auth/${isAdmin ? 'admin' : 'customer'}/login`,
+        `/backend/auth/${isAdmin ? 'admin' : 'customer'}/login`,
         { email, password }
       )
       setAuth(response.data)

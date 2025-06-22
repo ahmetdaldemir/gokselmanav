@@ -41,18 +41,18 @@ jobs:
         source: "frontend/dist/"
         target: "/var/www/html/gokselmanav/"
 
-    - name: Move Frontend Files to Final Directory
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: 185.209.228.189
-        username: root
-        password: '@198711Ad@'
-        port: 22
-        timeout: 30s
-        command_timeout: 15s
-        script: |
-          rm -rf /var/www/html/gokselmanav/frontend/*
-          mv /var/www/html/gokselmanav/frontend/dist/* /var/www/html/gokselmanav/frontend/
+    #- name: Move Frontend Files to Final Directory
+    #  uses: appleboy/ssh-action@v1.0.3
+    #  with:
+    #    host: 185.209.228.189
+    #    username: root
+    #    password: '@198711Ad@'
+    #    port: 22
+    #    timeout: 30s
+    #    command_timeout: 15s
+    #    script: |
+    #      rm -rf /var/www/html/gokselmanav/frontend/*
+    #      mv /var/www/html/gokselmanav/frontend/dist/* /var/www/html/gokselmanav/frontend/
 
     - name: Upload Backend Files to Temp
       uses: appleboy/scp-action@v0.1.7

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "backend/src/comments/comments.controller.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1750636526545,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1750636526545,
+            "name": "Commit-0",
+            "content": "import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';\r\nimport { CommentsService } from './comments.service';\r\nimport { CreateCommentDto } from './dto/create-comment.dto';\r\nimport { UpdateCommentDto } from './dto/update-comment.dto';\r\nimport { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';\r\nimport { RolesGuard } from '../auth/guards/roles.guard';\r\nimport { Roles } from '../auth/decorators/roles.decorator';\r\n\r\n@Controller('comments')\r\nexport class CommentsController {\r\n  constructor(private readonly commentsService: CommentsService) {}\r\n\r\n  @Post()\r\n  create(@Body() createCommentDto: CreateCommentDto) {\r\n    return this.commentsService.create(createCommentDto);\r\n  }\r\n\r\n  @Get()\r\n  findAll() {\r\n    return this.commentsService.findAll();\r\n  }\r\n\r\n  @Get('active')\r\n  findActive() {\r\n    return this.commentsService.findActive();\r\n  }\r\n\r\n  @Get('stats')\r\n  getRatingStats() {\r\n    return this.commentsService.getRatingStats();\r\n  }\r\n\r\n  @Get(':id')\r\n  findOne(@Param('id') id: string) {\r\n    return this.commentsService.findOne(+id);\r\n  }\r\n\r\n  @Patch(':id')\r\n  @UseGuards(JwtAuthGuard, RolesGuard)\r\n  @Roles('admin')\r\n  update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {\r\n    return this.commentsService.update(+id, updateCommentDto);\r\n  }\r\n\r\n  @Delete(':id')\r\n  @UseGuards(JwtAuthGuard, RolesGuard)\r\n  @Roles('admin')\r\n  remove(@Param('id') id: string) {\r\n    return this.commentsService.remove(+id);\r\n  }\r\n} "
+        }
+    ]
+}

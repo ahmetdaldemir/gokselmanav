@@ -1,0 +1,18 @@
+{
+    "sourceFile": "backend/src/settings/settings.service.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1750621476930,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1750621476930,
+            "name": "Commit-0",
+            "content": "import { Injectable, NotFoundException } from '@nestjs/common';\r\nimport { InjectRepository } from '@nestjs/typeorm';\r\nimport { Repository } from 'typeorm';\r\nimport { Setting } from './entities/setting.entity';\r\nimport { CreateSettingDto } from './dto/create-setting.dto';\r\nimport { UpdateSettingDto } from './dto/update-setting.dto';\r\n\r\n@Injectable()\r\nexport class SettingsService {\r\n  constructor(\r\n    @InjectRepository(Setting)\r\n    private readonly settingRepository: Repository<Setting>,\r\n  ) {}\r\n\r\n  async create(createSettingDto: CreateSettingDto): Promise<Setting> {\r\n    const setting = this.settingRepository.create(createSettingDto);\r\n    return this.settingRepository.save(setting);\r\n  }\r\n\r\n  async findAll(): Promise<Setting[]> {\r\n    return this.settingRepository.find();\r\n  }\r\n\r\n  async findOne(id: number): Promise<Setting> {\r\n    const setting = await this.settingRepository.findOne({ where: { id } });\r\n    if (!setting) {\r\n      throw new NotFoundException(`Setting with ID ${id} not found`);\r\n    }\r\n    return setting;\r\n  }\r\n\r\n  async findByKey(key: string): Promise<Setting> {\r\n    const setting = await this.settingRepository.findOne({ where: { key } });\r\n    if (!setting) {\r\n      throw new NotFoundException(`Setting with key ${key} not found`);\r\n    }\r\n    return setting;\r\n  }\r\n\r\n  async findSocialMediaSettings(): Promise<Setting[]> {\r\n    const socialMediaKeys = ['Facebook', 'Twitter', 'Instagram'];\r\n    return this.settingRepository.find({\r\n      where: socialMediaKeys.map(key => ({ key })),\r\n    });\r\n  }\r\n\r\n  async update(id: number, updateSettingDto: UpdateSettingDto): Promise<Setting> {\r\n    const setting = await this.findOne(id);\r\n    Object.assign(setting, updateSettingDto);\r\n    return this.settingRepository.save(setting);\r\n  }\r\n\r\n  async remove(id: number): Promise<void> {\r\n    const setting = await this.findOne(id);\r\n    await this.settingRepository.remove(setting);\r\n  }\r\n} "
+        }
+    ]
+}

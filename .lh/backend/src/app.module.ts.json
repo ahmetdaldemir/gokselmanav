@@ -1,0 +1,18 @@
+{
+    "sourceFile": "backend/src/app.module.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1750636548167,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1750636548167,
+            "name": "Commit-0",
+            "content": "import { Module } from '@nestjs/common';\r\nimport { TypeOrmModule } from '@nestjs/typeorm';\r\nimport { ConfigModule, ConfigService } from '@nestjs/config';\r\nimport { CustomersModule } from './customers/customers.module';\r\nimport { ProductsModule } from './products/products.module';\r\nimport { OrdersModule } from './orders/orders.module';\r\nimport { SettingsModule } from './settings/settings.module';\r\nimport { CartsModule } from './carts/carts.module';\r\nimport { AdminModule } from './admin/admin.module';\r\nimport { AuthModule } from './auth/auth.module';\r\nimport { PaymentModule } from './payment/payment.module';\r\nimport { CategoryModule } from './category/category.module';\r\nimport { UploadModule } from './upload/upload.module';\r\nimport { CommentsModule } from './comments/comments.module';\r\n\r\n@Module({\r\n  imports: [\r\n    ConfigModule.forRoot({\r\n      isGlobal: true,\r\n    }),\r\n    TypeOrmModule.forRootAsync({\r\n      imports: [ConfigModule],\r\n      useFactory: (configService: ConfigService) => ({\r\n        type: 'postgres',\r\n        host: configService.get('DB_HOST', '185.209.228.189'),\r\n        port: configService.get('DB_PORT', 5432),\r\n        username: configService.get('DB_USERNAME', 'gokselmanav_user'),\r\n        password: configService.get('DB_PASSWORD', 'gokselmanav_password_2024'),\r\n        database: configService.get('DB_DATABASE', 'gokselmanav_db'),\r\n        entities: [__dirname + '/**/*.entity{.ts,.js}'],\r\n        synchronize: configService.get('NODE_ENV') !== 'production',\r\n      }),\r\n      inject: [ConfigService],\r\n    }),\r\n    CustomersModule,\r\n    ProductsModule,\r\n    OrdersModule,\r\n    SettingsModule,\r\n    CartsModule,\r\n    AdminModule,\r\n    AuthModule,\r\n    PaymentModule,\r\n    CategoryModule,\r\n    UploadModule,\r\n    CommentsModule,\r\n  ],\r\n})\r\nexport class AppModule {}\r\n\r\n"
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "backend/src/comments/comments.module.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1750636537397,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1750636537397,
+            "name": "Commit-0",
+            "content": "import { Module } from '@nestjs/common';\r\nimport { TypeOrmModule } from '@nestjs/typeorm';\r\nimport { CommentsService } from './comments.service';\r\nimport { CommentsController } from './comments.controller';\r\nimport { Comment } from './entities/comment.entity';\r\n\r\n@Module({\r\n  imports: [TypeOrmModule.forFeature([Comment])],\r\n  controllers: [CommentsController],\r\n  providers: [CommentsService],\r\n  exports: [CommentsService],\r\n})\r\nexport class CommentsModule {} "
+        }
+    ]
+}

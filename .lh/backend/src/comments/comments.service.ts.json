@@ -1,0 +1,18 @@
+{
+    "sourceFile": "backend/src/comments/comments.service.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1750636518259,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1750636518259,
+            "name": "Commit-0",
+            "content": "import { Injectable, NotFoundException } from '@nestjs/common';\r\nimport { InjectRepository } from '@nestjs/typeorm';\r\nimport { Repository } from 'typeorm';\r\nimport { Comment } from './entities/comment.entity';\r\nimport { CreateCommentDto } from './dto/create-comment.dto';\r\nimport { UpdateCommentDto } from './dto/update-comment.dto';\r\n\r\n@Injectable()\r\nexport class CommentsService {\r\n  constructor(\r\n    @InjectRepository(Comment)\r\n    private commentRepository: Repository<Comment>,\r\n  ) {}\r\n\r\n  async create(createCommentDto: CreateCommentDto): Promise<Comment> {\r\n    const comment = this.commentRepository.create(createCommentDto);\r\n    return this.commentRepository.save(comment);\r\n  }\r\n\r\n  async findAll(): Promise<Comment[]> {\r\n    return this.commentRepository.find({\r\n      where: { isActive: true },\r\n      order: { createdAt: 'DESC' },\r\n    });\r\n  }\r\n\r\n  async findActive(): Promise<Comment[]> {\r\n    return this.commentRepository.find({\r\n      where: { isActive: true },\r\n      order: { createdAt: 'DESC' },\r\n      take: 10, // Son 10 yorumu getir\r\n    });\r\n  }\r\n\r\n  async findOne(id: number): Promise<Comment> {\r\n    const comment = await this.commentRepository.findOne({ where: { id } });\r\n    if (!comment) {\r\n      throw new NotFoundException(`Comment with ID ${id} not found`);\r\n    }\r\n    return comment;\r\n  }\r\n\r\n  async update(id: number, updateCommentDto: UpdateCommentDto): Promise<Comment> {\r\n    const comment = await this.findOne(id);\r\n    Object.assign(comment, updateCommentDto);\r\n    return this.commentRepository.save(comment);\r\n  }\r\n\r\n  async remove(id: number): Promise<void> {\r\n    const comment = await this.findOne(id);\r\n    comment.isActive = false;\r\n    await this.commentRepository.save(comment);\r\n  }\r\n\r\n  async getRatingStats(): Promise<{ averageRating: number; totalComments: number; ratingDistribution: Record<number, number> }> {\r\n    const comments = await this.findAll();\r\n    \r\n    if (comments.length === 0) {\r\n      return {\r\n        averageRating: 0,\r\n        totalComments: 0,\r\n        ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }\r\n      };\r\n    }\r\n\r\n    const totalRating = comments.reduce((sum, comment) => sum + comment.rating, 0);\r\n    const averageRating = totalRating / comments.length;\r\n\r\n    const ratingDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };\r\n    comments.forEach(comment => {\r\n      ratingDistribution[comment.rating]++;\r\n    });\r\n\r\n    return {\r\n      averageRating: Math.round(averageRating * 10) / 10, // 1 ondalık basamak\r\n      totalComments: comments.length,\r\n      ratingDistribution\r\n    };\r\n  }\r\n} "
+        }
+    ]
+}

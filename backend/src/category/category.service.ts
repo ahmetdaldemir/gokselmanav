@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, IsNull } from 'typeorm';
+import { Repository, IsNull, Not } from 'typeorm';
 import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -37,6 +37,14 @@ export class CategoryService {
   findSubCategories(parentId: number) {
     return this.categoryRepository.find({
       where: { parentId, isActive: true },
+      order: { name: 'ASC' },
+    });
+  }
+
+  // Tüm alt kategorileri getir (parent_id null olmayanlar)
+  findAllSubCategories() {
+    return this.categoryRepository.find({
+      where: { parentId: Not(IsNull()), isActive: true },
       order: { name: 'ASC' },
     });
   }

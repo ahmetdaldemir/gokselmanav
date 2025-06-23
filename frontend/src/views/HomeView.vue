@@ -24,14 +24,19 @@
     <div class="menu-tabs-bar">
       <input type="text" v-model="search" class="menu-search" placeholder="Menüde Ara" />
       <div class="menu-tabs">
-        <div
-          v-for="category in categories"
-          :key="category.id"
-          :class="['menu-tab', { active: selectedCategoryId === category.id }]"
-          @click="selectCategory(category.id)"
-        >
-          {{ category.name }}
-        </div>
+        <template v-for="(categories, level) in categoriesStack" :key="'level-' + level">
+          <div v-if="level > 0" class="menu-tab back-tab" @click="goBackCategory(level)">
+            ← Geri
+          </div>
+          <div
+            v-for="category in categories"
+            :key="category.id"
+            :class="['menu-tab', { active: selectedCategoryIds[level] === category.id }]"
+            @click="selectCategory(category, level)"
+          >
+            {{ category.name }}
+          </div>
+        </template>
       </div>
     </div>
 
@@ -99,11 +104,15 @@ const cart = useCartStore()
 
 const products = ref<any[]>([])
 const categories = ref<any[]>([])
+const hierarchicalCategories = ref<any[]>([])
+const subCategories = ref<any[]>([])
 const selectedCategoryId = ref<number | null>(null)
 const search = ref('')
 const currentPage = ref(1)
 const itemsPerPage = 12
 const ratingStats = ref({ averageRating: 4.95, totalComments: 1000 })
+const categoriesStack = ref<any[][]>([])
+const selectedCategoryIds = ref<number[]>([])
 
 // Kategori veya arama değiştiğinde sayfa numarasını sıfırla
 watch([selectedCategoryId, search], () => {
@@ -112,28 +121,44 @@ watch([selectedCategoryId, search], () => {
 
 onMounted(async () => {
   try {
-    // Ürünleri, kategorileri ve rating istatistiklerini paralel olarak yükle
-    const [productsResponse, categoriesResponse, statsResponse] = await Promise.all([
+    // Ana kategorileri yükle
+    const mainCategoriesResponse = await axios.get('/backend/categories/main')
+    categoriesStack.value = [mainCategoriesResponse.data]
+    selectedCategoryIds.value = []
+    // Ürünleri ve rating istatistiklerini yükle
+    const [productsResponse, statsResponse] = await Promise.all([
       axios.get('/backend/products'),
-      axios.get('/backend/categories/main'),
       axios.get('/backend/comments/stats')
     ])
-    
     products.value = productsResponse.data
-    categories.value = categoriesResponse.data
     ratingStats.value = statsResponse.data
-    
-    // İlk kategoriyi seç
-    if (categories.value.length > 0) {
-      selectedCategoryId.value = categories.value[0].id
-    }
   } catch (error) {
     console.error('Veriler alınamadı:', error)
   }
 })
 
-const selectCategory = (categoryId: number) => {
-  selectedCategoryId.value = categoryId
+const selectCategory = async (category: any, level: number) => {
+  selectedCategoryIds.value = selectedCategoryIds.value.slice(0, level)
+  selectedCategoryIds.value[level] = category.id
+  // Alt kategorileri getir
+  const subCategoriesResponse = await axios.get(`/backend/categories/sub/${category.id}`)
+  const subCategories = subCategoriesResponse.data
+  categoriesStack.value = categoriesStack.value.slice(0, level + 1)
+  if (subCategories.length > 0) {
+    categoriesStack.value.push(subCategories)
+  }
+  // Seçili kategoriye göre ürünleri filtrele
+  selectedCategoryId.value = category.id
+}
+
+const goBackCategory = (level: number) => {
+  categoriesStack.value = categoriesStack.value.slice(0, level)
+  selectedCategoryIds.value = selectedCategoryIds.value.slice(0, level - 1)
+  if (level === 1) {
+    selectedCategoryId.value = null
+  } else {
+    selectedCategoryId.value = selectedCategoryIds.value[level - 2] || null
+  }
 }
 
 const filteredProducts = computed(() => {
@@ -324,6 +349,24 @@ const openAboutModal = () => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+  padding-bottom: 0.5rem;
+}
+.menu-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+.menu-tabs::-webkit-scrollbar-track {
+  background: transparent;
+}
+.menu-tabs::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 2px;
+}
+.menu-tabs::-webkit-scrollbar-thumb:hover {
+  background: #999;
 }
 .menu-tab {
   padding: 0.7rem 1.3rem;
@@ -334,6 +377,8 @@ const openAboutModal = () => {
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
   font-size: 1rem;
+  flex-shrink: 0;
+  min-width: max-content;
 }
 .menu-tab.active {
   background: #e52929;
@@ -476,5 +521,11 @@ const openAboutModal = () => {
 .page-number.active {
   background: #e52929;
   color: #fff;
+}
+.menu-tab.back-tab {
+  background: #eee;
+  color: #888;
+  font-weight: 400;
+  margin-right: 0.5rem;
 }
 </style> 

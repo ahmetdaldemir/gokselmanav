@@ -27,6 +27,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated.value = true
     localStorage.setItem('token', response.access_token)
     localStorage.setItem('user', JSON.stringify(response.user))
+    axios.defaults.headers.common['Authorization'] = `Bearer ${response.access_token}`
   }
 
   const clearAuth = () => {
@@ -35,6 +36,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated.value = false
     localStorage.removeItem('token')
     localStorage.removeItem('user')
+    delete axios.defaults.headers.common['Authorization']
   }
 
   const initAuth = () => {
@@ -44,6 +46,7 @@ export const useAuthStore = defineStore('auth', () => {
       token.value = storedToken
       user.value = JSON.parse(storedUser)
       isAuthenticated.value = true
+      axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`
     }
   }
 

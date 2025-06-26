@@ -1,0 +1,18 @@
+{
+    "sourceFile": "backend/src/orders/entities/order.entity.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1750682851140,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1750682851140,
+            "name": "Commit-0",
+            "content": "import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';\r\nimport { Customer } from '../../customers/entities/customer.entity';\r\nimport { Product } from '../../products/entities/product.entity';\r\n\r\n@Entity('orders')\r\nexport class Order {\r\n  @PrimaryGeneratedColumn()\r\n  id: number;\r\n\r\n  @ManyToOne(() => Customer)\r\n  @JoinColumn({ name: 'customer_id' })\r\n  customer: Customer;\r\n\r\n  @Column()\r\n  customerId: number;\r\n\r\n  @OneToMany(() => OrderItem, (orderItem) => orderItem.order)\r\n  orderItems: OrderItem[];\r\n\r\n  @Column('decimal', { precision: 10, scale: 2 })\r\n  totalAmount: number;\r\n\r\n  @Column({\r\n    type: 'enum',\r\n    enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],\r\n    default: 'pending',\r\n  })\r\n  status: string;\r\n\r\n  @Column()\r\n  shippingAddress: string;\r\n\r\n  @Column({ nullable: true })\r\n  paymentMethod: string;\r\n\r\n  @Column({ nullable: true })\r\n  trackingNumber: string;\r\n\r\n  @CreateDateColumn()\r\n  createdAt: Date;\r\n\r\n  @UpdateDateColumn()\r\n  updatedAt: Date;\r\n}\r\n\r\n@Entity('order_items')\r\nexport class OrderItem {\r\n  @PrimaryGeneratedColumn()\r\n  id: number;\r\n\r\n  @ManyToOne(() => Order, (order) => order.orderItems)\r\n  @JoinColumn({ name: 'order_id' })\r\n  order: Order;\r\n\r\n  @ManyToOne(() => Product)\r\n  @JoinColumn({ name: 'product_id' })\r\n  product: Product;\r\n\r\n  @Column()\r\n  quantity: number;\r\n\r\n  @Column('decimal', { precision: 10, scale: 2 })\r\n  price: number;\r\n} "
+        }
+    ]
+}

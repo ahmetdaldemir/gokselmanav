@@ -7,9 +7,6 @@ class OrderItemDto {
 
   @IsNumber()
   quantity: number;
-
-  @IsNumber()
-  price: number;
 }
 
 export class CreateOrderDto {
@@ -21,14 +18,9 @@ export class CreateOrderDto {
   @Type(() => OrderItemDto)
   items: OrderItemDto[];
 
-  @IsNumber()
-  totalAmount: number;
-
   @IsString()
-  shippingAddress: string;
-
-  @IsString()
-  paymentMethod: string;
+  @IsOptional()
+  shippingAddress?: string;
 
   @IsString()
   @IsOptional()

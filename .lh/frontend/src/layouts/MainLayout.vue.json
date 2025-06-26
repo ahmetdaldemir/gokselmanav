@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 12,
+            "activePatchIndex": 13,
             "patches": [
                 {
                     "date": 1750614923023,
@@ -56,6 +56,10 @@
                 {
                     "date": 1750637120030,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -260,8 +260,13 @@\n   // Listen for comments modal event\r\n   window.addEventListener('openCommentsModal', () => {\r\n     openModal('comments')\r\n   })\r\n+  \r\n+  // Listen for about modal event\r\n+  window.addEventListener('openAboutModal', () => {\r\n+    openModal('about')\r\n+  })\r\n })\r\n \r\n const loadSocialMediaSettings = async () => {\r\n   try {\r\n"
+                },
+                {
+                    "date": 1750681401685,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -111,10 +111,10 @@\n           <span>{{ userName }}</span>\r\n         </v-btn>\r\n       </v-bottom-navigation>\r\n \r\n-      <!-- Mobil Navigation Drawer -->\r\n-      <v-navigation-drawer v-model=\"drawer\" app temporary class=\"d-md-none\">\r\n+      <!-- Navigation Drawer -->\r\n+      <v-navigation-drawer v-model=\"drawer\" app temporary>\r\n         <v-list nav>\r\n           <v-list-item to=\"/\" title=\"Ana Sayfa\" prepend-icon=\"mdi-home\" />\r\n           <v-list-item to=\"/corporate\" title=\"Kurumsal\" prepend-icon=\"mdi-domain\" />\r\n           <v-list-item to=\"/contact\" title=\"İletişim\" prepend-icon=\"mdi-email\" />\r\n"
                 }
             ],
             "date": 1750614923023,

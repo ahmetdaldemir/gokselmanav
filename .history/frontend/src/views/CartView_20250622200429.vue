@@ -34,37 +34,16 @@
             <span>{{ subtotal.toLocaleString('tr-TR', {style: 'currency', currency: 'TRY'}) }}</span>
           </div>
           <div class="d-flex justify-space-between mb-2">
-            <span>KDV (20%)</span>
+            <span>KDV (18%)</span>
             <span>{{ tax.toLocaleString('tr-TR', {style: 'currency', currency: 'TRY'}) }}</span>
           </div>
           <div class="d-flex justify-space-between font-weight-bold text-h6 mt-4 mb-4">
             <span>Toplam</span>
             <span>{{ total.toLocaleString('tr-TR', {style: 'currency', currency: 'TRY'}) }}</span>
           </div>
-          <v-form @submit.prevent="submitOrder">
-            <v-textarea
-              v-model="deliveryAddress"
-              label="Teslimat Adresi"
-              rows="3"
-              variant="outlined"
-              required
-              class="mb-4"
-            ></v-textarea>
-            <v-radio-group v-model="paymentMethod" required class="mb-4">
-              <template v-slot:label><div>Ödeme Yöntemi</div></template>
-              <v-radio label="Kapıda Ödeme" value="cod"></v-radio>
-              <v-radio label="Kredi/Banka Kartı" value="card"></v-radio>
-            </v-radio-group>
-            <v-btn 
-              type="submit" 
-              color="primary" 
-              block 
-              size="large" 
-              :disabled="!cart.items || cart.items.length === 0 || !deliveryAddress"
-            >
-              Alışverişi Tamamla
-            </v-btn>
-          </v-form>
+          <v-btn color="primary" block size="large" :disabled="!cart.items || cart.items.length === 0" @click="goToCheckout">
+            Alışverişi Tamamla
+          </v-btn>
         </v-card>
       </v-col>
     </v-row>
@@ -77,28 +56,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useCartStore } from '@/stores/cart'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import axios from 'axios'
 
 const cart = useCartStore()
 const router = useRouter()
 const authStore = useAuthStore()
 
-const deliveryAddress = ref('')
-const paymentMethod = ref('cod') // 'cod' or 'card'
-
 onMounted(() => {
   cart.fetchCart()
-  if (authStore.user?.address) {
-    deliveryAddress.value = authStore.user.address
-  }
 })
 
 const subtotal = computed(() => (cart.items ? cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0) : 0))
-const tax = computed(() => subtotal.value * 0.20)
+const tax = computed(() => subtotal.value * 0.18)
 const total = computed(() => subtotal.value + tax.value)
 
 const updateQuantity = (item: any, quantity: number) => {
@@ -114,42 +86,11 @@ const clearCart = () => {
   cart.clearCart()
 }
 
-const submitOrder = async () => {
-  if (!authStore.isAuthenticated || !authStore.user) {
-    router.push('/login')
-    return
-  }
-  
-  if (paymentMethod.value === 'card') {
-    // Save address to store or pass as state to cashout view
-    // For now, just navigate
+const goToCheckout = () => {
+  if (authStore.isAuthenticated) {
     router.push('/cashout')
-  } else if (paymentMethod.value === 'cod') {
-    try {
-      if (!authStore.user) {
-        alert('Sipariş oluşturmak için lütfen giriş yapın.');
-        router.push('/login');
-        return;
-      }
-      const orderData = {
-        customerId: authStore.user.id,
-        items: cart.items.map(item => ({
-          productId: item.id,
-          quantity: item.quantity,
-          price: item.price,
-        })),
-        totalAmount: total.value,
-        shippingAddress: deliveryAddress.value,
-        paymentMethod: 'cod',
-      }
-      await axios.post('/backend/orders', orderData)
-      cart.clearCart()
-      router.push('/orders')
-      alert('Siparişiniz başarıyla alındı!')
-    } catch (error) {
-      console.error('Sipariş oluşturma hatası:', error)
-      alert('Sipariş oluşturulurken bir hata oluştu.')
-    }
+  } else {
+    router.push('/signup')
   }
 }
 </script>

@@ -115,7 +115,7 @@ const clearCart = () => {
 }
 
 const submitOrder = async () => {
-  if (!authStore.isAuthenticated || !authStore.user) {
+  if (!authStore.isAuthenticated) {
     router.push('/login')
     return
   }
@@ -126,11 +126,6 @@ const submitOrder = async () => {
     router.push('/cashout')
   } else if (paymentMethod.value === 'cod') {
     try {
-      if (!authStore.user) {
-        alert('Sipariş oluşturmak için lütfen giriş yapın.');
-        router.push('/login');
-        return;
-      }
       const orderData = {
         customerId: authStore.user.id,
         items: cart.items.map(item => ({

@@ -27,18 +27,23 @@ export class OrdersService {
       throw new NotFoundException(`Customer with ID ${customerId} not found`);
     }
 
-    // Create order items
+    // Create order items and calculate total
+    let totalAmount = 0;
     const orderItems: OrderItem[] = [];
+
     for (const item of items) {
       const product = await this.productsService.findOne(item.productId);
       if (!product) {
         throw new NotFoundException(`Product with ID ${item.productId} not found`);
       }
+
       const orderItem = this.orderItemRepository.create({
         product,
         quantity: item.quantity,
         price: product.price,
       });
+
+      totalAmount += orderItem.price * orderItem.quantity;
       orderItems.push(orderItem);
     }
 
@@ -47,18 +52,10 @@ export class OrdersService {
       customer,
       customerId,
       orderItems,
-      totalAmount: createOrderDto.totalAmount, // Use total from DTO
+      totalAmount,
     });
 
-    const savedOrder = await this.orderRepository.save(order);
-
-    // After saving the order, associate orderItems with it
-    for (const orderItem of orderItems) {
-      orderItem.order = savedOrder;
-      await this.orderItemRepository.save(orderItem);
-    }
-
-    return savedOrder;
+    return this.orderRepository.save(order);
   }
 
   async findAll(): Promise<Order[]> {

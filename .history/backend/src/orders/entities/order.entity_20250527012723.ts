@@ -27,11 +27,8 @@ export class Order {
   })
   status: string;
 
-  @Column()
-  shippingAddress: string;
-
   @Column({ nullable: true })
-  paymentMethod: string;
+  shippingAddress: string;
 
   @Column({ nullable: true })
   trackingNumber: string;

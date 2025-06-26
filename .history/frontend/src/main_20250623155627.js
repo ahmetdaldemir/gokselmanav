@@ -11,6 +11,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import axios from 'axios'
+import { useAuthStore } from './stores/auth'
 
 const vuetify = createVuetify({
   components,
@@ -37,7 +38,8 @@ app.use(pinia)
 // Auth store'dan token'ı alır ve isteğin 'Authorization' başlığına ekler.
 // Böylece backend, isteği yapan kullanıcının kimliğini doğrulayabilir.
 axios.interceptors.request.use(config => {
-  const token = localStorage.getItem('token');
+  const authStore = useAuthStore()
+  const token = authStore.token
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }

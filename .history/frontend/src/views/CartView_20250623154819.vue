@@ -77,24 +77,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useCartStore } from '@/stores/cart'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import axios from 'axios'
 
 const cart = useCartStore()
 const router = useRouter()
 const authStore = useAuthStore()
 
-const deliveryAddress = ref('')
-const paymentMethod = ref('cod') // 'cod' or 'card'
-
 onMounted(() => {
   cart.fetchCart()
-  if (authStore.user?.address) {
-    deliveryAddress.value = authStore.user.address
-  }
 })
 
 const subtotal = computed(() => (cart.items ? cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0) : 0))
@@ -114,42 +107,11 @@ const clearCart = () => {
   cart.clearCart()
 }
 
-const submitOrder = async () => {
-  if (!authStore.isAuthenticated || !authStore.user) {
-    router.push('/login')
-    return
-  }
-  
-  if (paymentMethod.value === 'card') {
-    // Save address to store or pass as state to cashout view
-    // For now, just navigate
+const submitOrder = () => {
+  if (authStore.isAuthenticated) {
     router.push('/cashout')
-  } else if (paymentMethod.value === 'cod') {
-    try {
-      if (!authStore.user) {
-        alert('Sipariş oluşturmak için lütfen giriş yapın.');
-        router.push('/login');
-        return;
-      }
-      const orderData = {
-        customerId: authStore.user.id,
-        items: cart.items.map(item => ({
-          productId: item.id,
-          quantity: item.quantity,
-          price: item.price,
-        })),
-        totalAmount: total.value,
-        shippingAddress: deliveryAddress.value,
-        paymentMethod: 'cod',
-      }
-      await axios.post('/backend/orders', orderData)
-      cart.clearCart()
-      router.push('/orders')
-      alert('Siparişiniz başarıyla alındı!')
-    } catch (error) {
-      console.error('Sipariş oluşturma hatası:', error)
-      alert('Sipariş oluşturulurken bir hata oluştu.')
-    }
+  } else {
+    router.push('/signup')
   }
 }
 </script>

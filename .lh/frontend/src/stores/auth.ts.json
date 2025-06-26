@@ -3,11 +3,19 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 2,
             "patches": [
                 {
                     "date": 1750614962093,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1750682932928,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,8 +7,9 @@\n   email: string\r\n   firstName: string\r\n   lastName: string\r\n   role: 'admin' | 'customer'\r\n+  address?: string\r\n }\r\n \r\n interface LoginResponse {\r\n   access_token: string\r\n"
+                },
+                {
+                    "date": 1750683860824,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -26,18 +26,16 @@\n     token.value = response.access_token\r\n     isAuthenticated.value = true\r\n     localStorage.setItem('token', response.access_token)\r\n     localStorage.setItem('user', JSON.stringify(response.user))\r\n-    axios.defaults.headers.common['Authorization'] = `Bearer ${response.access_token}`\r\n   }\r\n \r\n   const clearAuth = () => {\r\n     user.value = null\r\n     token.value = null\r\n     isAuthenticated.value = false\r\n     localStorage.removeItem('token')\r\n     localStorage.removeItem('user')\r\n-    delete axios.defaults.headers.common['Authorization']\r\n   }\r\n \r\n   const initAuth = () => {\r\n     const storedToken = localStorage.getItem('token')\r\n@@ -45,9 +43,8 @@\n     if (storedToken && storedUser) {\r\n       token.value = storedToken\r\n       user.value = JSON.parse(storedUser)\r\n       isAuthenticated.value = true\r\n-      axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`\r\n     }\r\n   }\r\n \r\n   const login = async (email: string, password: string, isAdmin: boolean = false) => {\r\n"
                 }
             ],
             "date": 1750614962093,

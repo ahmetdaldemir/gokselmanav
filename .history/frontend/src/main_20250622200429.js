@@ -10,7 +10,6 @@ import { createHead } from '@vueuse/head'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
-import axios from 'axios'
 
 const vuetify = createVuetify({
   components,
@@ -31,19 +30,6 @@ const vuetify = createVuetify({
 const app = createApp(App)
 const pinia = createPinia()
 app.use(pinia)
-
-// Axios Interceptor
-// Bu kod parçası, her bir axios isteğinden önce araya girer.
-// Auth store'dan token'ı alır ve isteğin 'Authorization' başlığına ekler.
-// Böylece backend, isteği yapan kullanıcının kimliğini doğrulayabilir.
-axios.interceptors.request.use(config => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
-
 app.use(router)
 app.use(vuetify)
 app.use(createHead())

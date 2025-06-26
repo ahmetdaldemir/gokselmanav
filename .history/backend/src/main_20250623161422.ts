@@ -8,7 +8,14 @@ async function bootstrap() {
   
   // CORS ayarları
   app.enableCors({
-    origin: true,
+    origin: (origin, callback) => {
+      const whitelist = (process.env.CORS_ORIGIN || '').split(',');
+      if (!origin || whitelist.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Accept, Authorization',
     credentials: true,

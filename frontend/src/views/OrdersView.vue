@@ -1,35 +1,46 @@
 <template>
   <div class="orders-view">
-    <h1>Siparişlerim</h1>
-    <table v-if="orders.length">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Tutar</th>
-          <th>Durum</th>
-          <th>Ürünler</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="order in orders" :key="order.id">
-          <td>{{ order.id }}</td>
-          <td>{{ order.totalAmount?.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' }) }}</td>
-          <td>
-            <span :class="getStatusClass(order.status)">
-              {{ getStatusText(order.status) }}
-            </span>
-          </td>
-          <td>
-            <ul>
-              <li v-for="item in order.orderItems" :key="item.id">
-                {{ item.product?.name }} x{{ item.quantity }}
-              </li>
-            </ul>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <p v-else>Hiç siparişiniz yok.</p>
+    <h1 class="orders-title">Siparişlerim</h1>
+    <div class="orders-table-wrapper">
+      <table v-if="orders.length" class="orders-table">
+        <thead>
+          <tr>
+            <th class="sticky">#</th>
+            <th class="sticky">Tutar</th>
+            <th class="sticky">Durum</th>
+            <th class="sticky">Ürünler</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="order in orders" :key="order.id" class="order-row">
+            <td>{{ order.id }}</td>
+            <td>
+              <span class="order-amount">
+                <i class="fas fa-coins"></i>
+                {{ order.totalAmount?.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' }) }}
+              </span>
+            </td>
+            <td>
+              <span :class="['status-badge', getStatusClass(order.status)]">
+                <i :class="getStatusIcon(order.status)" class="status-icon"></i>
+                {{ getStatusText(order.status) }}
+              </span>
+            </td>
+            <td>
+              <ul class="order-products">
+                <li v-for="item in order.orderItems" :key="item.id" class="product-item">
+                  <i class="fas fa-box"></i> {{ item.product?.name }} <span class="product-qty">x{{ item.quantity }}</span>
+                </li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div v-else class="empty-message">
+        <i class="fas fa-box-open empty-icon"></i>
+        <div>Hiç siparişiniz yok.</div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -92,58 +103,155 @@ const getStatusClass = (status: string) => {
   }
   return classMap[status] || ''
 }
+
+const getStatusIcon = (status: string) => {
+  const iconMap: Record<string, string> = {
+    pending: 'fas fa-hourglass-half',
+    processing: 'fas fa-cogs',
+    shipped: 'fas fa-truck',
+    delivered: 'fas fa-check-circle',
+    cancelled: 'fas fa-times-circle'
+  }
+  return iconMap[status] || 'fas fa-question-circle'
+}
 </script>
 
 <style scoped>
 .orders-view {
   padding: 2rem;
+  max-width: 100%;
+  margin: 0 auto;
 }
-table {
+.orders-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+  letter-spacing: 0.5px;
+}
+.orders-table-wrapper {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  overflow-x: auto;
+  padding: 1rem;
+}
+.orders-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1.5rem;
+  font-size: 1rem;
+  min-width: 600px;
 }
-th, td {
-  border: 1px solid #ddd;
-  padding: 0.5rem 1rem;
-  text-align: left;
-}
-th {
+.orders-table thead tr {
   background: #f7f7f7;
 }
+.orders-table th, .orders-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+.orders-table th.sticky {
+  position: sticky;
+  top: 0;
+  background: #f7f7f7;
+  z-index: 2;
+}
+.orders-table tbody tr:nth-child(even) {
+  background: #f9fafb;
+}
+.orders-table tbody tr:hover {
+  background: #eaf6ff;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+.order-amount {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #1867C0;
+}
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  padding: 0.3rem 0.8rem;
+  border-radius: 16px;
+  font-size: 0.95rem;
+  min-width: 120px;
+  justify-content: center;
+}
+.status-icon {
+  font-size: 1.1rem;
+}
 .status-pending {
-  background-color: #fff3cd;
+  background: #fff3cd;
   color: #856404;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.875rem;
 }
 .status-processing {
-  background-color: #cce5ff;
+  background: #cce5ff;
   color: #004085;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.875rem;
 }
 .status-shipped {
-  background-color: #d4edda;
+  background: #d4edda;
   color: #155724;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.875rem;
 }
 .status-delivered {
-  background-color: #d1ecf1;
+  background: #d1ecf1;
   color: #0c5460;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.875rem;
 }
 .status-cancelled {
-  background-color: #f8d7da;
+  background: #f8d7da;
   color: #721c24;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.875rem;
+}
+.order-products {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.product-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.97rem;
+  color: #555;
+  margin-bottom: 2px;
+}
+.product-qty {
+  color: #888;
+  font-size: 0.9em;
+  margin-left: 2px;
+}
+.empty-message {
+  text-align: center;
+  color: #888;
+  padding: 3rem 0;
+  font-size: 1.2rem;
+}
+.empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: #e0e0e0;
+}
+@media (max-width: 900px) {
+  .orders-table {
+    min-width: 400px;
+    font-size: 0.95rem;
+  }
+  .orders-title {
+    font-size: 1.3rem;
+  }
+}
+@media (max-width: 600px) {
+  .orders-view {
+    padding: 0.5rem;
+  }
+  .orders-table-wrapper {
+    padding: 0.2rem;
+  }
+  .orders-table {
+    min-width: 300px;
+    font-size: 0.9rem;
+  }
 }
 </style> 

@@ -27,8 +27,17 @@ export const useNotificationStore = defineStore('notifications', () => {
   const connect = () => {
     if (socket.value?.connected) return
 
-    socket.value = io('https://goksel:3100', {
+    const getWsUrl = () => {
+      if (import.meta.env.PROD) {
+        return 'wss://' + window.location.host
+      } else {
+        return 'ws://localhost:3100'
+      }
+    }
+
+    socket.value = io(getWsUrl(), {
       transports: ['websocket', 'polling'],
+      path: '/socket.io',
     })
 
     socket.value.on('connect', () => {

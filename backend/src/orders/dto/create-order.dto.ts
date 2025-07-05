@@ -32,5 +32,25 @@ export class CreateOrderDto {
 
   @IsString()
   @IsOptional()
+  paymentType?: string;
+
+  @IsNumber()
+  @IsOptional()
+  paidAmount?: number;
+
+  @IsNumber()
+  @IsOptional()
+  remainingAmount?: number;
+
+  @IsString()
+  @IsOptional()
+  paymentStatus?: string;
+
+  @IsString()
+  @IsOptional()
+  note?: string;
+
+  @IsString()
+  @IsOptional()
   trackingNumber?: string;
 } 

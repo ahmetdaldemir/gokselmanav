@@ -272,9 +272,13 @@ const loadSocialMediaSettings = async () => {
   try {
     const response = await axios.get('/backend/settings/social-media')
     const settings = {}
-    response.data.forEach(setting => {
-      settings[setting.key] = setting.value
-    })
+    if (Array.isArray(response.data)) {
+      response.data.forEach(setting => {
+        settings[setting.key] = setting.value
+      })
+    } else if (typeof response.data === 'object' && response.data !== null) {
+      Object.assign(settings, response.data)
+    }
     socialMediaSettings.value = settings
   } catch (error) {
     console.error('Sosyal medya ayarları yüklenemedi:', error)

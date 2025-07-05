@@ -18,7 +18,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/backend': {
-        target: 'https://gokselmanav.com',
+        target: 'http://localhost:3100',
         changeOrigin: true,
         rewrite: path => path.replace(/^\/backend/, ''), 
       },

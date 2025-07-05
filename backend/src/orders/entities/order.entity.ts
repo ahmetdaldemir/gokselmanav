@@ -36,6 +36,25 @@ export class Order {
   @Column({ nullable: true })
   trackingNumber: string;
 
+  @Column({ nullable: true })
+  paymentType: string;
+
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  paidAmount: number;
+
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  remainingAmount: number;
+
+  @Column({
+    type: 'enum',
+    enum: ['tam', 'eksik', 'veresiye'],
+    default: 'tam',
+  })
+  paymentStatus: string;
+
+  @Column({ nullable: true })
+  note: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

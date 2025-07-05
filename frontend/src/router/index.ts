@@ -73,7 +73,7 @@ const router = createRouter({
         {
           path: 'orders',
           name: 'admin-orders',
-          component: () => import('../views/OrdersView.vue')
+          component: () => import('@/views/admin/OrdersView.vue')
         },
         {
           path: 'settings',

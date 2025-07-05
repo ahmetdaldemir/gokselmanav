@@ -142,7 +142,7 @@ const submitOrder = async () => {
         shippingAddress: deliveryAddress.value,
         paymentMethod: 'cod',
       }
-      await axios.post('/backend/orders', orderData)
+      await axios.post('/backend/orders/public', orderData)
       cart.clearCart()
       router.push('/orders')
       alert('Siparişiniz başarıyla alındı!')

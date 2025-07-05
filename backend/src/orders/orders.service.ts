@@ -6,6 +6,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { ProductsService } from '../products/products.service';
 import { CustomersService } from '../customers/customers.service';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 @Injectable()
 export class OrdersService {
@@ -16,6 +17,7 @@ export class OrdersService {
     private readonly orderItemRepository: Repository<OrderItem>,
     private readonly productsService: ProductsService,
     private readonly customersService: CustomersService,
+    private readonly notificationsGateway: NotificationsGateway,
   ) {}
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
@@ -58,11 +60,29 @@ export class OrdersService {
       await this.orderItemRepository.save(orderItem);
     }
 
+    // Send notification to admin about new order
+    this.notificationsGateway.notifyNewOrder({
+      id: savedOrder.id,
+      customerId: savedOrder.customerId,
+      totalAmount: savedOrder.totalAmount,
+      customer: {
+        firstName: customer.firstName,
+        lastName: customer.lastName,
+      },
+    });
+
     return savedOrder;
   }
 
   async findAll(): Promise<Order[]> {
     return this.orderRepository.find({
+      relations: ['customer', 'orderItems', 'orderItems.product'],
+    });
+  }
+
+  async findByCustomerId(customerId: number): Promise<Order[]> {
+    return this.orderRepository.find({
+      where: { customerId },
       relations: ['customer', 'orderItems', 'orderItems.product'],
     });
   }

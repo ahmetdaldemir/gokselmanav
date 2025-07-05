@@ -43,6 +43,49 @@
           </button>
         </div>
         <div class="header-right">
+          <!-- Notification Bell -->
+          <div class="notification-container">
+            <button class="notification-bell" @click="toggleNotifications">
+              <i class="fas fa-bell"></i>
+              <span v-if="notificationCount > 0" class="notification-badge">{{ notificationCount }}</span>
+            </button>
+            
+            <!-- Notification Dropdown -->
+            <div v-if="showNotifications" class="notification-dropdown">
+              <div class="notification-header">
+                <h3>Bildirimler</h3>
+                <button @click="clearNotifications" class="clear-btn">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+              <div class="notification-list">
+                <div v-if="notifications.length === 0" class="no-notifications">
+                  Bildirim yok
+                </div>
+                <div 
+                  v-for="notification in notifications" 
+                  :key="`${notification.timestamp}-${notification.type}`"
+                  class="notification-item"
+                  @click="removeNotification(notification)"
+                >
+                  <div class="notification-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                  </div>
+                  <div class="notification-content">
+                    <div class="notification-message">{{ notification.message }}</div>
+                    <div v-if="notification.order" class="notification-details">
+                      {{ notification.order.customer.firstName }} {{ notification.order.customer.lastName }} - 
+                      {{ notification.order.totalAmount.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' }) }}
+                    </div>
+                    <div class="notification-time">
+                      {{ formatTime(notification.timestamp) }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
           <div class="admin-profile">
             <span class="admin-name">{{ adminName }}</span>
             <button @click="handleLogout" class="logout-btn">
@@ -61,20 +104,55 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useNotificationStore } from '@/stores/notifications'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const notificationStore = useNotificationStore()
+
 const adminName = ref('Admin User')
 const isSidebarCollapsed = ref(false)
+const showNotifications = ref(false)
+
+const notifications = computed(() => notificationStore.notifications)
+const notificationCount = computed(() => notifications.value.length)
 
 const toggleSidebar = () => {
   isSidebarCollapsed.value = !isSidebarCollapsed.value
 }
 
+const toggleNotifications = () => {
+  showNotifications.value = !showNotifications.value
+}
+
+const clearNotifications = () => {
+  notificationStore.clearNotifications()
+}
+
+const removeNotification = (notification: any) => {
+  notificationStore.removeNotification(notification)
+}
+
+const formatTime = (timestamp: Date) => {
+  const now = new Date()
+  const diff = now.getTime() - new Date(timestamp).getTime()
+  const minutes = Math.floor(diff / 60000)
+  
+  if (minutes < 1) return 'Az önce'
+  if (minutes < 60) return `${minutes} dakika önce`
+  
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours} saat önce`
+  
+  const days = Math.floor(hours / 24)
+  return `${days} gün önce`
+}
+
 const handleLogout = () => {
+  notificationStore.disconnect()
   authStore.logout()
   router.push('/admin/login')
 }
@@ -85,6 +163,21 @@ onMounted(() => {
   link.rel = 'stylesheet'
   link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
   document.head.appendChild(link)
+  
+  // Connect to WebSocket
+  notificationStore.connect()
+  
+  // Close notifications when clicking outside
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement
+    if (!target.closest('.notification-container')) {
+      showNotifications.value = false
+    }
+  })
+})
+
+onUnmounted(() => {
+  notificationStore.disconnect()
 })
 </script>
 
@@ -257,5 +350,136 @@ onMounted(() => {
   .sidebar-collapsed .admin-main {
     margin-left: 0;
   }
+}
+
+/* Notification Styles */
+.notification-container {
+  position: relative;
+  margin-right: 1rem;
+}
+
+.notification-bell {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  position: relative;
+  color: #666;
+}
+
+.notification-bell:hover {
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 350px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.notification-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #333;
+}
+
+.clear-btn {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.clear-btn:hover {
+  color: #e74c3c;
+}
+
+.notification-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.no-notifications {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+}
+
+.notification-item {
+  display: flex;
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.notification-item:hover {
+  background-color: #f8f9fa;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-icon {
+  margin-right: 1rem;
+  color: #3498db;
+  font-size: 1.2rem;
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-message {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.notification-details {
+  font-size: 0.875rem;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+
+.notification-time {
+  font-size: 0.75rem;
+  color: #999;
 }
 </style> 

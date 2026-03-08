@@ -8,6 +8,15 @@
       </button>
     </div>
 
+    <div class="search-bar">
+      <input
+        v-model="search"
+        type="text"
+        class="search-input"
+        placeholder="Ürünlerde ara... (ad, açıklama, ID)"
+      />
+    </div>
+
     <div class="products-table">
       <table>
         <thead>
@@ -17,12 +26,14 @@
             <th>Ürün Adı</th>
             <th>Fiyat</th>
             <th>Stok</th>
+            <th>Satış Cinsi</th>
+            <th>Min. Kg</th>
             <th>Durum</th>
             <th>İşlemler</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="product in products" :key="product.id">
+          <tr v-for="product in filteredProducts" :key="product.id">
             <td>{{ product.id }}</td>
             <td>
               <img :src="product.image" :alt="product.name" class="product-image">
@@ -30,6 +41,8 @@
             <td>{{ product.name }}</td>
             <td>{{ product.price }} TL</td>
             <td>{{ product.stock }}</td>
+            <td>{{ product.salesType ?? 'adet' }}</td>
+            <td>{{ product.salesType === 'kg' ? (product.minKg ?? '-') : '-' }}</td>
             <td>
               <span :class="['status', product.isActive ? 'active' : 'inactive']">
                 {{ product.isActive ? 'Aktif' : 'Pasif' }}
@@ -73,30 +86,48 @@
               rows="3"
             ></textarea>
           </div>
-          <div class="form-group">
-            <label for="price">Fiyat</label>
-            <input 
-              type="number" 
-              id="price" 
-              v-model="form.price" 
-              required
-              min="0"
-              step="0.01"
-            >
-          </div>
-          <div class="form-group">
-            <label for="stock">Stok</label>
-            <input 
-              type="number" 
-              id="stock" 
-              v-model="form.stock" 
-              required
-              min="0"
-            >
+          <div class="form-row">
+            <div class="form-group half-width">
+              <label for="price">Fiyat</label>
+              <input 
+                type="number" 
+                id="price" 
+                v-model="form.price" 
+                required
+                min="0"
+                step="0.01"
+              >
+            </div>
+            <div class="form-group half-width">
+              <label for="stock">Stok</label>
+              <input 
+                type="number" 
+                id="stock" 
+                v-model="form.stock" 
+                required
+                min="0"
+              >
+            </div>
           </div>
           <div class="form-group">
             <label for="image">Ürün Resmi</label>
             <ImageUpload v-model="form.image" />
+          </div>
+          <div class="form-group">
+            <label for="salesType">Satış Cinsi</label>
+            <select id="salesType" v-model="form.salesType" required class="sales-type-select">
+              <option value="kg">Kilogram (kg)</option>
+              <option value="adet">Adet</option>
+              <option value="gram">Gram</option>
+              <option value="kasa">Kasa</option>
+              <option value="dilim">Dilim</option>
+              <option value="paket">Paket</option>
+              <option value="diğer">Diğer</option>
+            </select>
+          </div>
+          <div class="form-group" v-if="form.salesType === 'kg'">
+            <label for="minKg">Minimum Kg (örn: 0.5)</label>
+            <input type="number" id="minKg" v-model.number="form.minKg" min="0.01" step="0.01" required />
           </div>
           <div class="form-group">
             <label class="checkbox-label">
@@ -122,7 +153,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import axios from 'axios'
 import ImageUpload from '@/components/ImageUpload.vue'
 
@@ -134,9 +165,12 @@ interface Product {
   stock: number
   image: string
   isActive: boolean
+  salesType: string
+  minKg?: number
 }
 
 const products = ref<Product[]>([])
+const search = ref('')
 
 const fetchProducts = async () => {
   const response = await axios.get('/backend/products')
@@ -144,6 +178,16 @@ const fetchProducts = async () => {
 }
 
 onMounted(fetchProducts)
+
+const filteredProducts = computed(() => {
+  const q = search.value.toLowerCase().trim()
+  if (!q) return products.value
+  return products.value.filter(product =>
+    product.name.toLowerCase().includes(q) ||
+    product.description.toLowerCase().includes(q) ||
+    product.id.toString().includes(q)
+  )
+})
 
 const showAddModal = ref(false)
 const editingProduct = ref<Product | null>(null)
@@ -154,12 +198,15 @@ const form = reactive({
   price: 0,
   stock: 0,
   image: '',
-  isActive: true
+  isActive: true,
+  salesType: 'adet',
+  minKg: undefined
 })
 
 const editProduct = (product: Product) => {
   editingProduct.value = product
   Object.assign(form, product)
+  if (product.salesType !== 'kg') form.minKg = undefined
   showAddModal.value = true
 }
 
@@ -197,7 +244,9 @@ const closeModal = () => {
     price: 0,
     stock: 0,
     image: '',
-    isActive: true
+    isActive: true,
+    salesType: 'adet',
+    minKg: undefined
   })
 }
 </script>
@@ -229,6 +278,26 @@ const closeModal = () => {
 
 .btn-add:hover {
   background-color: #3aa876;
+}
+
+.search-bar {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.search-input {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  min-width: 260px;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.search-input:focus {
+  border-color: #1867C0;
 }
 
 .products-table {
@@ -398,5 +467,38 @@ input:focus, textarea:focus {
 
 .btn-submit:hover {
   background-color: #3aa876;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+.half-width {
+  flex: 1 1 0;
+}
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+.sales-type-select {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #fff;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+  margin-top: 0.2rem;
+}
+.sales-type-select:focus {
+  border-color: #1867C0;
+  box-shadow: 0 0 0 2px #1867c033;
+}
+.sales-type-select:hover {
+  border-color: #1867C0;
 }
 </style> 

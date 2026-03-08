@@ -20,7 +20,7 @@
       </div>
     </div>
 
-    <!-- Menüde Ara ve Tab Menü -->
+    <!-- Kategori ve alt kategori sekmeleri eski haline döndürülüyor -->
     <div class="menu-tabs-bar">
       <input type="text" v-model="search" class="menu-search" placeholder="Menüde Ara" />
       <div class="menu-tabs">
@@ -40,55 +40,35 @@
       </div>
     </div>
 
-    <!-- Ürün Listesi -->
-    <div class="products-list">
+    <!-- Ürün Listesi (Grid ve modern kartlar) -->
+    <div class="products-grid">
       <div
         v-for="product in paginatedProducts"
         :key="product.id"
-        class="product-row"
+        class="product-card-modern"
       >
-        <div class="product-info">
-          <div class="product-title">{{ product.name }}</div>
-          <div class="product-price">{{ product.price.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' }) }}</div>
-          <div class="product-desc">{{ cleanDescription(product.description) }}</div>
+        <div class="product-img-modern-wrap">
+          <img :src="product.image" :alt="product.name" class="product-img-modern" />
         </div>
-        <div class="product-right">
-          <img :src="product.image" :alt="product.name" class="product-img" />
-          <button class="add-btn" @click="addToCart(product)">
-            <span>+</span>
-          </button>
+        <div class="product-content-modern">
+          <div class="product-title-modern">{{ product.name }}</div>
+          <div class="product-rating-modern">
+            <span class="star">★</span> 5.0 <span class="rating-count">(962)</span>
+          </div>
+          <div class="product-price-modern">{{ product.price.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' }) }}</div>
         </div>
+        <button class="add-btn-modern" @click="addToCart(product)">
+          <span>+</span>
+        </button>
       </div>
     </div>
 
-    <!-- Sayfalama -->
-    <div v-if="totalPages > 1" class="pagination">
-      <button 
-        class="page-btn" 
-        :disabled="currentPage === 1"
-        @click="currentPage = currentPage - 1"
-      >
-        ← Önceki
-      </button>
-      
-      <div class="page-numbers">
-        <button 
-          v-for="page in visiblePages" 
-          :key="page"
-          :class="['page-number', { active: page === currentPage }]"
-          @click="currentPage = page"
-        >
-          {{ page }}
-        </button>
-      </div>
-      
-      <button 
-        class="page-btn" 
-        :disabled="currentPage === totalPages"
-        @click="currentPage = currentPage + 1"
-      >
-        Sonraki →
-      </button>
+    <!-- Sabit Alt Menü modern kalacak -->
+    <div class="bottom-nav">
+      <button class="nav-btn active"><i class="fas fa-home"></i></button>
+      <button class="nav-btn"><i class="fas fa-heart"></i></button>
+      <button class="nav-btn cart-btn"><i class="fas fa-shopping-cart"></i></button>
+      <button class="nav-btn"><i class="fas fa-user"></i></button>
     </div>
   </div>
 </template>
@@ -113,6 +93,8 @@ const itemsPerPage = 12
 const ratingStats = ref({ averageRating: 4.95, totalComments: 1000 })
 const categoriesStack = ref<any[][]>([])
 const selectedCategoryIds = ref<number[]>([])
+const categoriesTab = ref(['Fruit', 'Vegetable', 'Milk', 'Dry Fruit', 'Spices', 'Butter'])
+const selectedTab = ref('Fruit')
 
 // Kategori veya arama değiştiğinde sayfa numarasını sıfırla
 watch([selectedCategoryId, search], () => {
@@ -259,8 +241,9 @@ const openAboutModal = () => {
 
 <style scoped>
 .starbucks-page {
-  margin: 0 auto;
-  padding: 2rem 1rem 3rem 1rem;
+  background: #f6f7fb;
+  min-height: 100vh;
+  padding-bottom: 80px;
 }
 .restaurant-header {
   display: flex;
@@ -334,198 +317,228 @@ const openAboutModal = () => {
 .menu-tabs-bar {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 2rem;
-  margin-bottom: 1.5rem;
+  padding: 1rem 1rem 0.5rem 1rem;
+  background: #f6f7fb;
 }
 .menu-search {
-  padding: 0.7rem 1.2rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
-  min-width: 220px;
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 .menu-tabs {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  gap: 0.7rem;
+  padding: 0.5rem 0;
   overflow-x: auto;
-  white-space: nowrap;
-  scrollbar-width: thin;
-  scrollbar-color: #ccc transparent;
-  padding-bottom: 0.5rem;
-}
-.menu-tabs::-webkit-scrollbar {
-  height: 4px;
-}
-.menu-tabs::-webkit-scrollbar-track {
-  background: transparent;
-}
-.menu-tabs::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 2px;
-}
-.menu-tabs::-webkit-scrollbar-thumb:hover {
-  background: #999;
+  background: #f6f7fb;
 }
 .menu-tab {
-  padding: 0.7rem 1.3rem;
-  border-radius: 20px;
-  background: #f7f7f7;
-  color: #444;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  background: #fff;
+  border: none;
+  border-radius: 16px;
+  padding: 0.5rem 1.2rem;
   font-size: 1rem;
-  flex-shrink: 0;
-  min-width: max-content;
-}
-.menu-tab.active {
-  background: #e52929;
-  color: #fff;
-}
-.products-list {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.2rem;
-}
-@media (max-width: 1100px) {
-  .products-list {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-@media (max-width: 700px) {
-  .products-list {
-    grid-template-columns: 1fr;
-  }
-}
-.product-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-  padding: 1.2rem 1.5rem;
-  gap: 1.5rem;
-  min-width: 0;
-}
-.product-info {
-  flex: 1;
-  min-width: 0;
-}
-.product-title {
-  font-size: 1.1rem;
+  color: #1867C0;
   font-weight: 600;
-  margin-bottom: 0.2rem;
-}
-.product-price {
-  color: #e52929;
-  font-weight: 700;
-  margin-bottom: 0.3rem;
-}
-.product-desc {
-  color: #666;
-  font-size: 0.95rem;
-  margin-bottom: 0.5rem;
-}
-.product-right {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-.product-img {
-  width: 64px;
-  height: 64px;
-  border-radius: 10px;
-  object-fit: cover;
-  background: #eee;
-}
-.add-btn {
-  background: #fff;
-  border: 2px solid #e52929;
-  color: #e52929;
-  border-radius: 50%;
-  width: 38px;
-  height: 38px;
-  font-size: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
+  box-shadow: 0 2px 8px rgba(24,103,192,0.06);
 }
-.add-btn:hover {
-  background: #e52929;
-  color: #fff;
-}
-@media (max-width: 900px) {
-  .starbucks-page {
-    padding: 1rem 0.2rem 2rem 0.2rem;
-  }
-  .restaurant-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-  .menu-tabs-bar {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .product-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1rem;
-  }
-  .product-right {
-    align-self: flex-end;
-  }
-}
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-.page-btn {
-  padding: 0.7rem 1.2rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #fff;
-  color: #444;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-.page-btn:hover {
-  background: #e52929;
-  color: #fff;
-}
-.page-numbers {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.page-number {
-  padding: 0.7rem 1.2rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #fff;
-  color: #444;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-.page-number.active {
-  background: #e52929;
+.menu-tab.active, .menu-tab:hover {
+  background: #1867C0;
   color: #fff;
 }
 .menu-tab.back-tab {
-  background: #eee;
+  background: #1867C0;
+  color: #fff;
+}
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.2rem;
+  padding: 1.2rem 1rem 2.5rem 1rem;
+}
+.product-card-modern {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 8px 32px rgba(24,103,192,0.10);
+  padding: 0 0 1.8rem 0;
+  min-height: 240px;
+  transition: box-shadow 0.2s, transform 0.2s;
+  overflow: hidden;
+}
+.product-card-modern:hover {
+  box-shadow: 0 12px 40px rgba(24,103,192,0.16);
+  transform: translateY(-2px) scale(1.01);
+}
+.product-img-modern-wrap {
+  width: 100%;
+   display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  border-top-left-radius: 22px;
+  border-top-right-radius: 22px;
+  min-height: 90px;
+  max-height: 120px;
+  overflow: hidden;
+}
+.product-img-modern {
+  width: 100%;
+  max-width: 100px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: 0 0 18px 18px;
+   margin-top: 0.5rem;
+}
+.product-content-modern {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.5rem 0.5rem 0 0.5rem;
+}
+.product-title-modern {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 0.1rem;
+}
+.product-rating-modern {
+  color: #f7b731;
+  font-size: 0.97rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 0.1rem;
+}
+.product-rating-modern .star {
+  font-size: 1.1rem;
+}
+.product-rating-modern .rating-count {
   color: #888;
+  font-size: 0.93rem;
   font-weight: 400;
-  margin-right: 0.5rem;
+}
+.product-price-modern {
+  font-size: 1.13rem;
+  font-weight: 700;
+  color: #1867C0;
+  margin-top: 0.1rem;
+  margin-bottom: 0.1rem;
+  text-align: center;
+}
+.add-btn-modern {
+  position: absolute;
+  right: 1.1rem;
+  bottom: 1.1rem;
+  background: #1867C0;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(24,103,192,0.10);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+  z-index: 2;
+}
+.add-btn-modern:hover {
+  background: #145a99;
+  transform: scale(1.08);
+}
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #1867C0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 60px;
+  z-index: 100;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  box-shadow: 0 -2px 12px rgba(24,103,192,0.10);
+}
+.nav-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 0;
+  height: 100%;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.nav-btn.active, .nav-btn:focus {
+  background: #fff;
+  color: #1867C0;
+  border-radius: 12px;
+}
+.cart-btn {
+  position: relative;
+}
+.cart-btn::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 18px;
+  width: 8px;
+  height: 8px;
+  background: #f7b731;
+  border-radius: 50%;
+  display: block;
+}
+@media (max-width: 700px) {
+  .products-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.7rem;
+    padding: 0.7rem 0.3rem 2.5rem 0.3rem;
+  }
+  .product-card-modern {
+    min-height: 180px;
+    border-radius: 16px;
+  }
+  .product-img-modern-wrap {
+    min-height: 60px;
+    max-height: 80px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+  }
+  .product-img-modern {
+    max-width: 70px;
+    height: 50px;
+  }
+  .add-btn-modern {
+    width: 34px;
+    height: 34px;
+    font-size: 1.1rem;
+    right: 0.5rem;
+    bottom: 0.5rem;
+  }
+  .bottom-nav {
+    height: 54px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+  }
+  .nav-btn {
+    font-size: 1.2rem;
+  }
 }
 </style> 
